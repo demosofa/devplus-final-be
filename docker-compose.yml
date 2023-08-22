@@ -1,5 +1,16 @@
 version: '3'
 services:
+  # app:
+  #   build: .
+  #   container_name: ${APP_NAME}
+  #   environment:
+  #     - POSTGRES_HOST=${APP_NAME}-db
+  #   ports:
+  #     - 3000:3000
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+
   db:
     image: postgres:15.4-alpine
     container_name: ${APP_NAME}-db
@@ -10,7 +21,7 @@ services:
     ports:
       - 5432:${POSTGRES_PORT}
     volumes:
-      - dev-final:/var/lib/postgresql/data
+      - devplus-pg:/var/lib/postgresql/data
     restart: unless-stopped
 volumes:
-  dev-final:
+  devplus-pg:
