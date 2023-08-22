@@ -1,5 +1,5 @@
 import { Cv } from '@resources/cv/entities/cv.entity';
-import { Worksapace } from '@resources/worksapace/entities/worksapace.entity';
+import { Workspace } from '@resources/workspace/entities/workspace.entity';
 import {
 	BaseEntity,
 	Column,
@@ -26,9 +26,9 @@ export class Campaign extends BaseEntity {
 	@Column()
 	status: string;
 
-	@ManyToOne(() => Worksapace, (workspace) => workspace.campain)
-	workspace: Worksapace;
+	@ManyToOne(() => Workspace, (workspace) => workspace.campaign)
+	workspace: Workspace;
 
-	@OneToMany(() => Cv, (cv) => cv.campain)
+	@OneToMany(() => Cv, (cv) => cv.campaign)
 	cv: Cv[];
 }

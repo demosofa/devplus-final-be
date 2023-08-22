@@ -34,5 +34,5 @@ export class Cv extends BaseEntity {
 	status: string;
 
 	@ManyToOne(() => Campaign, (campaign) => campaign.cv)
-	campain: Campaign;
+	campaign: Campaign;
 }
