@@ -1,14 +1,8 @@
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
-import {
-	BaseEntity,
-	Column,
-	Entity,
-	OneToMany,
-	PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Worksapace extends BaseEntity {
+export class Workspace {
 	@PrimaryGeneratedColumn()
 	id: number;
 
@@ -25,5 +19,5 @@ export class Worksapace extends BaseEntity {
 	status: string;
 
 	@OneToMany(() => Campaign, (campaign) => campaign.workspace)
-	campain: Campaign[];
+	campaign: Campaign[];
 }
