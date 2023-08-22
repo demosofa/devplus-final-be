@@ -22,6 +22,13 @@ export class Workspace {
 	@OneToMany(() => Campaign, (campaign) => campaign.workspace)
 	campaign: Campaign[];
 
+<<<<<<< HEAD
 	@OneToMany(() => User, (user) => user.workspace)
+=======
+	@OneToMany(() => User, (user) => user.workspace, {
+		eager: true,
+		onDelete: 'CASCADE',
+	})
+>>>>>>> 7f96269 (feat: dp 39)
 	user: User[];
 }

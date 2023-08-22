@@ -52,7 +52,18 @@ export class WorkspaceService {
 		});
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} workspace`;
+	async remove(id: number) {
+		const workspace = await this.workspaceRepos.findOne({
+			where: { id },
+			relations: {
+				user: true,
+			},
+		});
+
+		if (!workspace) {
+			throw new NotFoundException(`Workspace with ID ${id} not found`);
+		}
+
+		await this.workspaceRepos.remove(workspace);
 	}
 }
