@@ -37,7 +37,7 @@ export class User {
 	@Column()
 	status: string;
 
-	@ManyToOne(() => Workspace)
+	@ManyToOne(() => Workspace, (workspace) => workspace.user)
 	workspace: Workspace;
 
 	@ManyToOne(() => Role, (role) => role.user)
