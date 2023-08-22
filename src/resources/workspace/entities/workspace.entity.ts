@@ -17,5 +17,5 @@ export class Workspace {
 	campaign: Campaign[];
 
 	@OneToMany(() => User, (user) => user.workspace)
-	user: User;
+	user: User[];
 }
