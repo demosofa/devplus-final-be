@@ -30,19 +30,19 @@ export class UserController {
 	}
 
 	@Get(':id')
-	findById(@Param('id') id: string) {
+	findById(@Param('id') id: number) {
 		return this.userService.findById(id);
 	}
 
 	@Patch(':id')
 	@UseGuards(AuthGuard)
-	update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+	update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
 		return this.userService.update(id, updateUserDto);
 	}
 
 	@Delete(':id')
 	@Auth(ROLE.ADMIN)
-	remove(@Param('id') id: string) {
+	remove(@Param('id') id: number) {
 		return this.userService.remove(id);
 	}
 }

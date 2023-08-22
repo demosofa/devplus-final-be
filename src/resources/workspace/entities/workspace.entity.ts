@@ -1,4 +1,5 @@
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
+import { User } from '@resources/user/entities/user.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -10,14 +11,11 @@ export class Workspace {
 	title_workspace: string;
 
 	@Column()
-	admin_email: string;
-
-	@Column()
-	admin_password: string;
-
-	@Column()
 	status: string;
 
 	@OneToMany(() => Campaign, (campaign) => campaign.workspace)
 	campaign: Campaign[];
+
+	@OneToMany(() => User, (user) => user.workspace)
+	user: User;
 }

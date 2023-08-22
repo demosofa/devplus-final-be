@@ -5,13 +5,13 @@ import { User } from './entities/user.entity';
 export interface IUserService {
 	create(createUserDto: CreateUserDto): Promise<User>;
 
-	findById(id: string): Promise<User>;
+	findById(id: number): Promise<User>;
 
-	findOne(username: string): Promise<User>;
+	findOne(name: string): Promise<User>;
 
-	update(id: string, updateUserDto: UpdateUserDto): Promise<User>;
+	update(id: number, updateUserDto: UpdateUserDto): Promise<User>;
 
-	remove(id: string): Promise<void>;
+	remove(id: number): Promise<void>;
 }
 
 export const IUserService = Symbol('IUserService');

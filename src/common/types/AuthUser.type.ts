@@ -1,7 +1,7 @@
 import { ROLE } from '@common/enums';
 
 export type AuthUser = {
-	id: string;
+	id: number;
 	fullName: string;
 	role: ROLE;
 };

@@ -11,25 +11,16 @@ import {
 import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Role } from '@resources/role/entities/role.entity';
+import { Workspace } from '@resources/workspace/entities/workspace.entity';
 
 @Entity()
 export class User {
-	@PrimaryGeneratedColumn('uuid')
-	id: string;
+	@PrimaryGeneratedColumn()
+	id: number;
 
 	@IsNotEmpty()
 	@Column()
-	firstName: string;
-
-	@IsNotEmpty()
-	@Column()
-	lastName: string;
-
-	@Column()
-	fullName: string;
-
-	@Column({ unique: true })
-	username: string;
+	name: string;
 
 	@IsEmail()
 	@Column({ unique: true })
@@ -40,6 +31,17 @@ export class User {
 	@Column()
 	password: string;
 
+	@IsNotEmpty()
+	@Column()
+	phone_number: string;
+
+	@IsNotEmpty()
+	@Column()
+	status: string;
+
+	@ManyToOne(() => Workspace, (workspace) => workspace.user)
+	workspace: Workspace;
+
 	@ManyToOne(() => Role, (role) => role.user)
 	role: Role;
 
@@ -48,14 +50,4 @@ export class User {
 
 	@UpdateDateColumn()
 	updatedAt: Date;
-
-	@BeforeInsert()
-	createFullName() {
-		this.fullName = this.firstName + ' ' + this.lastName;
-	}
-
-	@BeforeUpdate()
-	updateFullName() {
-		this.fullName = this.firstName + ' ' + this.lastName;
-	}
 }
