@@ -20,11 +20,11 @@ export class UserService implements IUserService {
 
 	async create(createUserDto: CreateUserDto) {
 		const isExist = await this.userRepos.findOneBy({
-			username: createUserDto.username,
+			name: createUserDto.name,
 		});
 		if (isExist)
 			throw new BadRequestException(
-				'The user with this username is already existed'
+				'The user with this name is already existed'
 			);
 		let role = await this.roleService.findOne(ROLE.CUSTOMER);
 		if (!role) {
@@ -40,7 +40,7 @@ export class UserService implements IUserService {
 		return this.userRepos.find();
 	}
 
-	async findById(id: string) {
+	async findById(id: number) {
 		const user = await this.userRepos.findOne({
 			where: { id },
 			relations: {
@@ -51,9 +51,9 @@ export class UserService implements IUserService {
 		return user;
 	}
 
-	async findOne(username: string) {
+	async findOne(name: string) {
 		const user = await this.userRepos.findOne({
-			where: { username },
+			where: { name },
 			relations: {
 				role: true,
 			},
@@ -62,21 +62,21 @@ export class UserService implements IUserService {
 		return user;
 	}
 
-	async update(id: string, updateUserDto: UpdateUserDto) {
+	async update(id: number, updateUserDto: UpdateUserDto) {
 		const user = await this.findById(id);
-		if (user.username != updateUserDto.username) {
+		if (user.name != updateUserDto.name) {
 			const isExist = await this.userRepos.findOneBy({
-				username: updateUserDto.username,
+				name: updateUserDto.name,
 			});
 			if (isExist)
 				throw new BadRequestException(
-					'The user with this username is already existed'
+					'The user with this name is already existed'
 				);
 		}
 		return this.userRepos.save({ ...user, ...updateUserDto });
 	}
 
-	async remove(id: string) {
+	async remove(id: number) {
 		const { affected } = await this.userRepos.delete(id);
 		if (!affected) throw new NotFoundException('Can not find the user');
 	}

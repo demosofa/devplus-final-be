@@ -8,15 +8,7 @@ import {
 export class CreateUserDto {
 	@IsNotEmpty()
 	@IsString()
-	firstName: string;
-
-	@IsNotEmpty()
-	@IsString()
-	lastName: string;
-
-	@IsNotEmpty()
-	@IsString()
-	username: string;
+	name: string;
 
 	@IsNotEmpty()
 	@IsEmail()
@@ -25,4 +17,16 @@ export class CreateUserDto {
 	@IsNotEmpty()
 	@IsStrongPassword()
 	password: string;
+
+	@IsNotEmpty()
+	@IsString()
+	phone_number: string;
+
+	@IsNotEmpty()
+	@IsString()
+	type: string;
+
+	@IsNotEmpty()
+	@IsString()
+	status: string;
 }
