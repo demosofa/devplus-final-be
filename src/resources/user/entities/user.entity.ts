@@ -5,7 +5,6 @@ import {
 	CreateDateColumn,
 	UpdateDateColumn,
 	ManyToOne,
-	OneToOne,
 } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
 import { Exclude } from 'class-transformer';
@@ -38,7 +37,7 @@ export class User {
 	@Column()
 	status: string;
 
-	@OneToOne(() => Workspace)
+	@ManyToOne(() => Workspace)
 	workspace: Workspace;
 
 	@ManyToOne(() => Role, (role) => role.user)
