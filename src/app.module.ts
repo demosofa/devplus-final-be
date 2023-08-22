@@ -10,6 +10,7 @@ import { UserModule } from '@resources/user/user.module';
 import { WorksapaceModule } from '@resources/worksapace/worksapace.module';
 import { CampaignModule } from '@resources/campaign/campaign.module';
 import { CvModule } from '@resources/cv/cv.module';
+import { SuperadminModule } from '@resources/superadmin/superadmin.module';
 
 @Module({
 	imports: [
@@ -26,6 +27,7 @@ import { CvModule } from '@resources/cv/cv.module';
 		WorksapaceModule,
 		CampaignModule,
 		CvModule,
+		SuperadminModule,
 	],
 	providers: [
 		{
