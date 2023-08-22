@@ -22,7 +22,7 @@ export class Cv extends BaseEntity {
 	phone_number: string;
 
 	@Column()
-	apply_positon: string;
+	apply_position: string;
 
 	@Column()
 	file: string;
