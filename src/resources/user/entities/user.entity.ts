@@ -37,7 +37,9 @@ export class User {
 	@Column()
 	status: string;
 
-	@ManyToOne(() => Workspace, (workspace) => workspace.user)
+	@ManyToOne(() => Workspace, (workspace) => workspace.user, {
+		onDelete: 'CASCADE',
+	})
 	workspace: Workspace;
 
 	@ManyToOne(() => Role, (role) => role.user)

@@ -10,6 +10,8 @@ import {
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
+import { ROLE } from '../../common/enums';
+import { Auth } from '../../common/decorators';
 
 @Controller('workspace')
 export class WorkspaceController {
@@ -38,6 +40,7 @@ export class WorkspaceController {
 		return this.workspaceService.update(+id, updateWorkspaceDto);
 	}
 
+	@Auth(ROLE.ADMIN)
 	@Delete(':id')
 	remove(@Param('id') id: string) {
 		return this.workspaceService.remove(+id);
