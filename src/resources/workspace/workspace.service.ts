@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,12 +22,34 @@ export class WorkspaceService {
 		return await this.workspaceRepos.find();
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} workspace`;
+	async findOne(id: number) {
+		const isExist = await this.workspaceRepos.findOne({
+			where: { id, campaign: true },
+		});
+		if (isExist) return isExist;
+		throw new NotFoundException('This workspace is not existed');
 	}
 
-	update(id: number, updateWorkspaceDto: UpdateWorkspaceDto) {
-		return `This action updates a #${id} workspace`;
+	async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto) {
+		const oldWorkspace = await this.findOne(id);
+
+		if (oldWorkspace.title_workspace == updateWorkspaceDto.title_workspace) {
+			return oldWorkspace;
+		}
+
+		const isExist = await this.workspaceRepos.findOne({
+			where: {
+				title_workspace: updateWorkspaceDto.title_workspace,
+			},
+		});
+		if (isExist)
+			throw new BadRequestException('This workspace is already existed');
+
+		return this.workspaceRepos.save({
+			id,
+			...oldWorkspace,
+			...updateWorkspaceDto,
+		});
 	}
 
 	remove(id: number) {
