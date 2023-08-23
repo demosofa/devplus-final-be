@@ -1,34 +1,27 @@
+import { WORKSPACE_STATUS } from '@common/enums/workspace-status';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
 import { User } from '@resources/user/entities/user.entity';
-import {
-	Column,
-	Entity,
-	OneToMany,
-	OneToOne,
-	PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Workspace {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@Column()
+	@Column({ unique: true })
 	title_workspace: string;
 
-	@Column()
+	@Column({ default: WORKSPACE_STATUS.PENDING })
 	status: string;
 
-	@OneToMany(() => Campaign, (campaign) => campaign.workspace)
+	@OneToMany(() => Campaign, (campaign) => campaign.workspace, {
+		cascade: true,
+	})
 	campaign: Campaign[];
 
-<<<<<<< HEAD
-	@OneToMany(() => User, (user) => user.workspace)
-=======
 	@OneToMany(() => User, (user) => user.workspace, {
 		eager: true,
 		onDelete: 'CASCADE',
 	})
->>>>>>> 7f96269 (feat: dp 39)
 	user: User[];
 }

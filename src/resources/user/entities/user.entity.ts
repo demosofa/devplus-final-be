@@ -10,6 +10,7 @@ import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Role } from '@resources/role/entities/role.entity';
 import { Workspace } from '@resources/workspace/entities/workspace.entity';
+import { USER_STATUS } from '@common/enums/user-status';
 
 @Entity()
 export class User {
@@ -34,7 +35,7 @@ export class User {
 	phone_number: string;
 
 	@IsNotEmpty()
-	@Column()
+	@Column({ default: USER_STATUS.ENABLE })
 	status: string;
 
 	@ManyToOne(() => Workspace, (workspace) => workspace.user, {
