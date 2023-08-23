@@ -35,7 +35,7 @@ export class User {
 	phone_number: string;
 
 	@IsNotEmpty()
-	@Column({ default: USER_STATUS.DISABLE })
+	@Column({ default: USER_STATUS.ENABLE })
 	status: string;
 
 	@ManyToOne(() => Workspace, (workspace) => workspace.user, {
