@@ -35,8 +35,8 @@ export class User {
 	phone_number: string;
 
 	@IsNotEmpty()
-	@Column({ default: USER_STATUS.ENABLE })
-	status: string;
+	@Column({ default: USER_STATUS.ENABLE, enum: USER_STATUS })
+	status: USER_STATUS;
 
 	@ManyToOne(() => Workspace, (workspace) => workspace.user, {
 		onDelete: 'CASCADE',

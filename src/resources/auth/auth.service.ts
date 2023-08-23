@@ -15,15 +15,29 @@ export class AuthService implements IAuthService {
 	async login(loginUserDto: LoginUserDto) {
 		const user = await this.userService.findOne(loginUserDto.email);
 		if (!user) throw new UnauthorizedException();
-		const { password, id, role } = user;
+		const { id, email, name, password, role, status } = user;
 		const check = compareSync(loginUserDto.password, password);
 		if (!check) throw new UnauthorizedException('Can not find the account');
-		return this.jwtService.signAsync({ id, role: role.name });
+		return this.jwtService.signAsync({
+			id,
+			name,
+			email,
+			role: role.name,
+			status,
+		});
 	}
 
 	async register(registerUserDto: RegisterUserDto) {
 		registerUserDto.password = hashSync(registerUserDto.password, 10);
-		const { id, role } = await this.userService.create(registerUserDto);
-		return this.jwtService.signAsync({ id, role: role.name });
+		const { id, email, name, role, status } = await this.userService.create(
+			registerUserDto
+		);
+		return this.jwtService.signAsync({
+			id,
+			name,
+			email,
+			role: role.name,
+			status,
+		});
 	}
 }
