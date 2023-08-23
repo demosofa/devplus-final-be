@@ -13,7 +13,7 @@ export class AuthService implements IAuthService {
 	) {}
 
 	async login(loginUserDto: LoginUserDto) {
-		const user = await this.userService.findOne(loginUserDto.username);
+		const user = await this.userService.findOne(loginUserDto.email);
 		if (!user) throw new UnauthorizedException();
 		const { password, id, role } = user;
 		const check = compareSync(loginUserDto.password, password);
