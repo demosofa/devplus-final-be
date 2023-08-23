@@ -11,15 +11,14 @@ import { Workspace } from './entities/workspace.entity';
 import { Repository } from 'typeorm';
 import { User } from '@resources/user/entities/user.entity';
 import { Role } from '@resources/role/entities/role.entity';
-import { ROLE } from '@common/enums';
-import { USER_STATUS } from '@common/enums/user-status';
+import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
 
 @Injectable()
 export class WorkspaceService {
 	constructor(
 		@InjectRepository(Workspace) private workspaceRepos: Repository<Workspace>,
 		@InjectRepository(User)
-		private readonly userRepository: Repository<User>,
+		private readonly userRepos: Repository<User>,
 		@InjectRepository(Role)
 		private readonly roleRepos: Repository<Role>
 	) {}
@@ -32,7 +31,7 @@ export class WorkspaceService {
 
 		const workspace = this.workspaceRepos.create({ title_workspace });
 		try {
-			const isAdminExist = await this.userRepository.findOneBy({
+			const isAdminExist = await this.userRepos.findOneBy({
 				email: createAdminDto.email,
 			});
 			if (isAdminExist)
@@ -46,13 +45,13 @@ export class WorkspaceService {
 			}
 			const createdWorkspace = await this.workspaceRepos.save(workspace);
 
-			const admin = this.userRepository.create({
+			const admin = this.userRepos.create({
 				...createAdminDto,
 				status: USER_STATUS.DISABLE,
 				role,
 				workspace: createdWorkspace,
 			});
-			await this.userRepository.save(admin);
+			await this.userRepos.save(admin);
 
 			return createdWorkspace;
 		} catch (error) {
@@ -90,8 +89,20 @@ export class WorkspaceService {
 			}
 		}
 
+		if (updateWorkspaceDto.status == WORKSPACE_STATUS.ACCEPT) {
+			const roleAdmin = await this.roleRepos.findOneBy({ name: ROLE.ADMIN });
+			const admin = await this.userRepos.findOneBy({
+				role: {
+					id: roleAdmin.id,
+				},
+				workspace: {
+					id,
+				},
+			});
+			await this.userRepos.save({ ...admin, status: USER_STATUS.ENABLE });
+		}
+
 		return this.workspaceRepos.save({
-			id,
 			...oldWorkspace,
 			...updateWorkspaceDto,
 		});
