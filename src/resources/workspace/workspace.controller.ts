@@ -6,6 +6,8 @@ import {
 	Patch,
 	Param,
 	Delete,
+	Query,
+	ParseIntPipe,
 } from '@nestjs/common';
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
@@ -22,8 +24,8 @@ export class WorkspaceController {
 	}
 
 	@Get()
-	findAll() {
-		return this.workspaceService.findAll();
+	findAll(@Query('page', ParseIntPipe) page: number) {
+		return this.workspaceService.findAll(page);
 	}
 
 	@Get(':id')

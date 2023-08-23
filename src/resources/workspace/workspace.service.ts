@@ -59,8 +59,18 @@ export class WorkspaceService {
 		}
 	}
 
-	async findAll() {
-		return await this.workspaceRepos.find();
+	async findAll(page = 1, take = 7) {
+		const skip = (page - 1) * take;
+		const [data, count] = await this.workspaceRepos.findAndCount({
+			skip,
+			take,
+		});
+		return {
+			data,
+			count,
+			totalPages: Math.ceil(count / take),
+			currentPage: page,
+		};
 	}
 
 	async findOne(id: number) {
