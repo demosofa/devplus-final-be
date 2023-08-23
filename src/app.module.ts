@@ -11,6 +11,7 @@ import { CampaignModule } from '@resources/campaign/campaign.module';
 import { CvModule } from '@resources/cv/cv.module';
 import { SuperadminModule } from '@resources/superadmin/superadmin.module';
 import { WorkspaceModule } from '@resources/workspace/workspace.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
 	imports: [
@@ -21,6 +22,7 @@ import { WorkspaceModule } from '@resources/workspace/workspace.module';
 		}),
 		DbConfigModule,
 		JwtConfigModule,
+		ScheduleModule.forRoot(),
 		RoleModule,
 		UserModule,
 		AuthModule,
