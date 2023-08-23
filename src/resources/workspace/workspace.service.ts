@@ -73,17 +73,20 @@ export class WorkspaceService {
 	async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto) {
 		const oldWorkspace = await this.findOne(id);
 
-		if (oldWorkspace.title_workspace == updateWorkspaceDto.title_workspace) {
-			return oldWorkspace;
-		}
+		if (updateWorkspaceDto.title_workspace) {
+			if (oldWorkspace.title_workspace == updateWorkspaceDto.title_workspace) {
+				return oldWorkspace;
+			}
 
-		const isExist = await this.workspaceRepos.findOne({
-			where: {
-				title_workspace: updateWorkspaceDto.title_workspace,
-			},
-		});
-		if (isExist)
-			throw new BadRequestException('This workspace is already existed');
+			const isExist = await this.workspaceRepos.findOne({
+				where: {
+					title_workspace: updateWorkspaceDto.title_workspace,
+				},
+			});
+			if (isExist) {
+				throw new BadRequestException('This workspace is already existed');
+			}
+		}
 
 		return this.workspaceRepos.save({
 			id,
