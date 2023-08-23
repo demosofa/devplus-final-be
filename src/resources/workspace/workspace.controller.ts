@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
-import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { ROLE, WORKSPACE_STATUS } from '../../common/enums';
 import { Auth } from '../../common/decorators';
 
@@ -41,16 +40,8 @@ export class WorkspaceController {
 	}
 
 	@Auth(ROLE.SUPER_ADMIN)
-	@Patch('reject/:id')
+	@Delete('reject/:id')
 	reject(@Param('id') id: string) {
-		return this.workspaceService.update(+id, {
-			status: WORKSPACE_STATUS.REJECT,
-		});
-	}
-
-	@Auth(ROLE.ADMIN)
-	@Delete(':id')
-	remove(@Param('id') id: string) {
 		return this.workspaceService.remove(+id);
 	}
 }
