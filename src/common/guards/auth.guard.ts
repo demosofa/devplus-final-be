@@ -7,8 +7,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { AuthUser } from '@common/types/AuthUser.type';
 import { UserService } from '@resources/user/user.service';
+import { AuthUser } from '@common/types';
+import { USER_STATUS } from '@common/enums';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -39,6 +40,10 @@ export class AuthGuard implements CanActivate {
 			const result = await this.userService.findById(payload.id);
 			if (!result || result.role.name != payload.role)
 				throw new Error('There is no user');
+			else if (result.status == USER_STATUS.DISABLE)
+				throw new Error(
+					'Your account have been disabled, please contact to super admin'
+				);
 
 			req.user = payload;
 

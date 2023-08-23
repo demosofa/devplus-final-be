@@ -7,7 +7,7 @@ export interface IUserService {
 
 	findById(id: number): Promise<User>;
 
-	findOne(name: string): Promise<User>;
+	findOne(email: string): Promise<User>;
 
 	update(id: number, updateUserDto: UpdateUserDto): Promise<User>;
 
