@@ -1,7 +1,9 @@
-import { ROLE } from '@common/enums';
+import { ROLE, USER_STATUS } from '@common/enums';
 
 export type AuthUser = {
 	id: number;
-	fullName: string;
+	name: string;
+	email: string;
+	status: USER_STATUS;
 	role: ROLE;
 };
