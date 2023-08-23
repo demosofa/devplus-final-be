@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { User } from '@resources/user/entities/user.entity';
 import { Role } from '@resources/role/entities/role.entity';
 import { ROLE } from '@common/enums';
+import { USER_STATUS } from '@common/enums/user-status';
 
 @Injectable()
 export class WorkspaceService {
@@ -47,6 +48,7 @@ export class WorkspaceService {
 
 			const admin = this.userRepository.create({
 				...createAdminDto,
+				status: USER_STATUS.DISABLE,
 				role,
 				workspace: createdWorkspace,
 			});
