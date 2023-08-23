@@ -10,7 +10,7 @@ import {
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
-import { ROLE } from '../../common/enums';
+import { ROLE, WORKSPACE_STATUS } from '../../common/enums';
 import { Auth } from '../../common/decorators';
 
 @Controller('workspace')
@@ -32,12 +32,20 @@ export class WorkspaceController {
 		return this.workspaceService.findOne(+id);
 	}
 
-	@Patch(':id')
-	update(
-		@Param('id') id: string,
-		@Body() updateWorkspaceDto: UpdateWorkspaceDto
-	) {
-		return this.workspaceService.update(+id, updateWorkspaceDto);
+	@Auth(ROLE.SUPER_ADMIN)
+	@Patch('accept/:id')
+	accept(@Param('id') id: string) {
+		return this.workspaceService.update(+id, {
+			status: WORKSPACE_STATUS.ACCEPT,
+		});
+	}
+
+	@Auth(ROLE.SUPER_ADMIN)
+	@Patch('reject/:id')
+	reject(@Param('id') id: string) {
+		return this.workspaceService.update(+id, {
+			status: WORKSPACE_STATUS.REJECT,
+		});
 	}
 
 	@Auth(ROLE.ADMIN)
