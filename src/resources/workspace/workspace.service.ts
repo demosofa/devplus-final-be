@@ -2,20 +2,60 @@ import {
 	BadRequestException,
 	Injectable,
 	NotFoundException,
+	InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Workspace } from './entities/workspace.entity';
 import { Repository } from 'typeorm';
+import { User } from '@resources/user/entities/user.entity';
+import { Role } from '@resources/role/entities/role.entity';
+import { ROLE } from '@common/enums';
 
 @Injectable()
 export class WorkspaceService {
 	constructor(
-		@InjectRepository(Workspace) private workspaceRepos: Repository<Workspace>
+		@InjectRepository(Workspace) private workspaceRepos: Repository<Workspace>,
+		@InjectRepository(User)
+		private readonly userRepository: Repository<User>,
+		@InjectRepository(Role)
+		private readonly roleRepos: Repository<Role>
 	) {}
-	create(createWorkspaceDto: CreateWorkspaceDto) {
-		return 'This action adds a new workspace';
+
+	async create(createWorkspaceDto: CreateWorkspaceDto): Promise<Workspace> {
+		const { title_workspace, ...createAdminDto } = createWorkspaceDto;
+		const isExist = await this.workspaceRepos.findOneBy({ title_workspace });
+
+		if (isExist) throw new BadRequestException('Title is already exist!');
+
+		const workspace = this.workspaceRepos.create({ title_workspace });
+		try {
+			const isAdminExist = await this.userRepository.findOneBy({
+				email: createAdminDto.email,
+			});
+			if (isAdminExist)
+				throw new BadRequestException(
+					'There is already existed admin with this email'
+				);
+			let role = await this.roleRepos.findOneBy({ name: ROLE.ADMIN });
+			if (!role) {
+				const roleAdmin = this.roleRepos.create({ name: ROLE.ADMIN });
+				role = await this.roleRepos.save(roleAdmin);
+			}
+			const createdWorkspace = await this.workspaceRepos.save(workspace);
+
+			const admin = this.userRepository.create({
+				...createAdminDto,
+				role,
+				workspace: createdWorkspace,
+			});
+			await this.userRepository.save(admin);
+
+			return createdWorkspace;
+		} catch (error) {
+			throw new InternalServerErrorException(error.message);
+		}
 	}
 
 	async findAll() {

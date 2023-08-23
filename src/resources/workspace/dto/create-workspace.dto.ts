@@ -4,10 +4,16 @@ export class CreateWorkspaceDto {
 	@IsNotEmpty()
 	title_workspace: string;
 
+	@IsNotEmpty()
+	name: string;
+
 	@IsEmail()
 	@IsNotEmpty()
-	admin_email: string;
+	email: string;
 
 	@IsNotEmpty()
-	admin_password: string;
+	password: string;
+
+	@IsNotEmpty()
+	phone_number: string;
 }
