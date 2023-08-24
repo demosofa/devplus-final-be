@@ -4,14 +4,15 @@ import {
 	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
-import { CreateCampaignDto } from './dto/create-campaign.dto';
-import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Campaign } from './entities/campaign.entity';
 import { Repository } from 'typeorm';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
+
+import { CreateCampaignDto } from './dto/create-campaign.dto';
+import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import { Campaign } from './entities/campaign.entity';
 import { WorkspaceService } from '@resources/workspace/workspace.service';
+import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
 
 @Injectable()
 export class CampaignService {
@@ -21,13 +22,17 @@ export class CampaignService {
 		private readonly schedulerRegistry: SchedulerRegistry,
 		private readonly workspaceService: WorkspaceService
 	) {}
+
 	async create(createCampaignDto: CreateCampaignDto) {
 		try {
 			const { workspaceId, ...campaignDto } = createCampaignDto;
 			const workspace = await this.workspaceService.findOne(workspaceId);
+
 			const campaign = this.campaignRepos.create({ ...campaignDto, workspace });
 			const savedCampaign = await this.campaignRepos.save(campaign);
+
 			this.expire(savedCampaign.id, savedCampaign.expired_time);
+
 			return savedCampaign;
 		} catch (error) {
 			throw new BadRequestException(error.message);
@@ -40,8 +45,9 @@ export class CampaignService {
 
 	async findOne(id: number) {
 		const isExist = await this.campaignRepos.findOneBy({ id });
-		if (isExist) return isExist;
-		throw new NotFoundException('This campaign does not exist');
+		if (!isExist) throw new NotFoundException('This campaign does not exist');
+
+		return isExist;
 	}
 
 	async update(id: number, updateCampaignDto: UpdateCampaignDto) {
@@ -52,7 +58,9 @@ export class CampaignService {
 				...oldCampaign,
 				...updateCampaignDto,
 			});
+
 			this.expire(id, updateCampaignDto.expired_time);
+
 			return updatedCampaign;
 		} catch (error) {
 			throw new InternalServerErrorException(error.message);
@@ -65,10 +73,12 @@ export class CampaignService {
 			this.schedulerRegistry.deleteTimeout(timeOutName);
 
 		const milliseconds = new Date(at).getTime() - new Date().getTime();
+
 		const timeout = setTimeout(async () => {
 			await this.campaignRepos.update(id, { status: CAMPAIGN_STATUS.INACTIVE });
 			this.schedulerRegistry.deleteTimeout(timeOutName);
 		}, milliseconds);
+
 		this.schedulerRegistry.addTimeout(timeOutName, timeout);
 	}
 
