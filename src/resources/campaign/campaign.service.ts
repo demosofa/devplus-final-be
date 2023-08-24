@@ -42,7 +42,7 @@ export class CampaignService {
 		if (!index) {
 			throw new BadRequestException('Campaign not found');
 		}
-		this.expire(id, updateCampaignDto.expired);
+		this.expire(id, updateCampaignDto.expired_time);
 
 		await this.campaignRepos.update(id, updateCampaignDto);
 		return this.campaignRepos.save({ ...index, ...updateCampaignDto });
