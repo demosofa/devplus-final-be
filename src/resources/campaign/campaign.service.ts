@@ -1,12 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateCampaignDto } from './dto/create-campaign.dto';
-import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import {
+	BadRequestException,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Campaign } from './entities/campaign.entity';
 import { Repository } from 'typeorm';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
+
+import { CreateCampaignDto } from './dto/create-campaign.dto';
+import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import { Campaign } from './entities/campaign.entity';
 import { WorkspaceService } from '@resources/workspace/workspace.service';
+import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
 
 @Injectable()
 export class CampaignService {
@@ -16,14 +22,18 @@ export class CampaignService {
 		private readonly schedulerRegistry: SchedulerRegistry,
 		private readonly workspaceService: WorkspaceService
 	) {}
+
 	async create(createCampaignDto: CreateCampaignDto) {
 		try {
 			const { workspaceId, ...campaignDto } = createCampaignDto;
 			const workspace = await this.workspaceService.findOne(workspaceId);
+
 			const campaign = this.campaignRepos.create({ ...campaignDto, workspace });
-			const saveCompaign = await this.campaignRepos.save(campaign);
-			this.expire(saveCompaign.id, saveCompaign.expired_time);
-			return saveCompaign;
+			const savedCampaign = await this.campaignRepos.save(campaign);
+
+			this.expire(savedCampaign.id, savedCampaign.expired_time);
+
+			return savedCampaign;
 		} catch (error) {
 			throw new BadRequestException(error.message);
 		}
@@ -34,18 +44,27 @@ export class CampaignService {
 	}
 
 	async findOne(id: number) {
-		return await this.campaignRepos.findOneBy({ id });
+		const isExist = await this.campaignRepos.findOneBy({ id });
+		if (!isExist) throw new NotFoundException('This campaign does not exist');
+
+		return isExist;
 	}
 
 	async update(id: number, updateCampaignDto: UpdateCampaignDto) {
-		const index = await this.findOne(id);
-		if (!index) {
-			throw new BadRequestException('Campaign not found');
-		}
-		this.expire(id, updateCampaignDto.expired_time);
+		const oldCampaign = await this.findOne(id);
 
-		await this.campaignRepos.update(id, updateCampaignDto);
-		return this.campaignRepos.save({ ...index, ...updateCampaignDto });
+		try {
+			const updatedCampaign = await this.campaignRepos.save({
+				...oldCampaign,
+				...updateCampaignDto,
+			});
+
+			this.expire(id, updateCampaignDto.expired_time);
+
+			return updatedCampaign;
+		} catch (error) {
+			throw new InternalServerErrorException(error.message);
+		}
 	}
 
 	expire(id: number, at: string | Date) {
@@ -54,10 +73,12 @@ export class CampaignService {
 			this.schedulerRegistry.deleteTimeout(timeOutName);
 
 		const milliseconds = new Date(at).getTime() - new Date().getTime();
+
 		const timeout = setTimeout(async () => {
 			await this.campaignRepos.update(id, { status: CAMPAIGN_STATUS.INACTIVE });
 			this.schedulerRegistry.deleteTimeout(timeOutName);
 		}, milliseconds);
+
 		this.schedulerRegistry.addTimeout(timeOutName, timeout);
 	}
 
