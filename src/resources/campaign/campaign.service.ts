@@ -33,12 +33,19 @@ export class CampaignService {
 		return `This action returns all campaign`;
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} campaign`;
+	async findOne(id: number) {
+		return await this.campaignRepos.findOneBy({ id });
 	}
 
-	update(id: number, updateCampaignDto: UpdateCampaignDto) {
-		return `This action updates a #${id} campaign`;
+	async update(id: number, updateCampaignDto: UpdateCampaignDto) {
+		const index = await this.findOne(id);
+		if (!index) {
+			throw new BadRequestException('Campaign not found');
+		}
+		this.expire(id, updateCampaignDto.expired);
+
+		await this.campaignRepos.update(id, updateCampaignDto);
+		return this.campaignRepos.save({ ...index, ...updateCampaignDto });
 	}
 
 	expire(id: number, at: string | Date) {
