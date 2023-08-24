@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException,
+} from '@nestjs/common';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,9 +26,9 @@ export class CampaignService {
 			const { workspaceId, ...campaignDto } = createCampaignDto;
 			const workspace = await this.workspaceService.findOne(workspaceId);
 			const campaign = this.campaignRepos.create({ ...campaignDto, workspace });
-			const saveCompaign = await this.campaignRepos.save(campaign);
-			this.expire(saveCompaign.id, saveCompaign.expired_time);
-			return saveCompaign;
+			const savedCampaign = await this.campaignRepos.save(campaign);
+			this.expire(savedCampaign.id, savedCampaign.expired_time);
+			return savedCampaign;
 		} catch (error) {
 			throw new BadRequestException(error.message);
 		}
@@ -34,18 +39,24 @@ export class CampaignService {
 	}
 
 	async findOne(id: number) {
-		return await this.campaignRepos.findOneBy({ id });
+		const isExist = await this.campaignRepos.findOneBy({ id });
+		if (isExist) return isExist;
+		throw new NotFoundException('This campaign does not exist');
 	}
 
 	async update(id: number, updateCampaignDto: UpdateCampaignDto) {
-		const index = await this.findOne(id);
-		if (!index) {
-			throw new BadRequestException('Campaign not found');
-		}
-		this.expire(id, updateCampaignDto.expired_time);
+		const oldCampaign = await this.findOne(id);
 
-		await this.campaignRepos.update(id, updateCampaignDto);
-		return this.campaignRepos.save({ ...index, ...updateCampaignDto });
+		try {
+			const updatedCampaign = await this.campaignRepos.save({
+				...oldCampaign,
+				...updateCampaignDto,
+			});
+			this.expire(id, updateCampaignDto.expired_time);
+			return updatedCampaign;
+		} catch (error) {
+			throw new InternalServerErrorException(error.message);
+		}
 	}
 
 	expire(id: number, at: string | Date) {
