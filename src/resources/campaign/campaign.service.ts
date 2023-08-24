@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,16 +6,27 @@ import { Campaign } from './entities/campaign.entity';
 import { Repository } from 'typeorm';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
+import { WorkspaceService } from '@resources/workspace/workspace.service';
 
 @Injectable()
 export class CampaignService {
 	constructor(
 		@InjectRepository(Campaign)
 		private readonly campaignRepos: Repository<Campaign>,
-		private readonly schedulerRegistry: SchedulerRegistry
+		private readonly schedulerRegistry: SchedulerRegistry,
+		private readonly workspaceService: WorkspaceService
 	) {}
-	create(createCampaignDto: CreateCampaignDto) {
-		return 'This action adds a new campaign';
+	async create(createCampaignDto: CreateCampaignDto) {
+		try {
+			const { workspaceId, ...campaignDto } = createCampaignDto;
+			const workspace = await this.workspaceService.findOne(workspaceId);
+			const campaign = this.campaignRepos.create({ ...campaignDto, workspace });
+			const saveCompaign = await this.campaignRepos.save(campaign);
+			this.expire(saveCompaign.id, saveCompaign.expired_time);
+			return saveCompaign;
+		} catch (error) {
+			throw new BadRequestException(error.message);
+		}
 	}
 
 	findAll() {

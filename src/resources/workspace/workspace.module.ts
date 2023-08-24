@@ -16,5 +16,6 @@ import { Role } from '@resources/role/entities/role.entity';
 	],
 	controllers: [WorkspaceController],
 	providers: [WorkspaceService],
+	exports: [WorkspaceService],
 })
 export class WorkspaceModule {}
