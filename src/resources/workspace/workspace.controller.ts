@@ -1,18 +1,18 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
-	Param,
+	Controller,
 	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
 	Query,
-	ParseIntPipe,
 } from '@nestjs/common';
-import { WorkspaceService } from './workspace.service';
-import { CreateWorkspaceDto } from './dto/create-workspace.dto';
-import { ROLE, WORKSPACE_STATUS } from '../../common/enums';
 import { Auth } from '../../common/decorators';
+import { ROLE, WORKSPACE_STATUS } from '../../common/enums';
+import { PageOptionsDto } from './../../common/pagination/PageOptionDto';
+import { CreateWorkspaceDto } from './dto/create-workspace.dto';
+import { WorkspaceService } from './workspace.service';
 
 @Controller('workspace')
 export class WorkspaceController {
@@ -24,8 +24,8 @@ export class WorkspaceController {
 	}
 
 	@Get()
-	findAll(@Query('page', ParseIntPipe) page: number) {
-		return this.workspaceService.findAll(page);
+	findAll(@Query() pageOptionsDto: PageOptionsDto) {
+		return this.workspaceService.findAll(pageOptionsDto);
 	}
 
 	@Get(':id')
