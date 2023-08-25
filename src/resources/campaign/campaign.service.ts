@@ -13,6 +13,9 @@ import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { Campaign } from './entities/campaign.entity';
 import { WorkspaceService } from '@resources/workspace/workspace.service';
 import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
+import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
+import { PageMetaDto } from '../../common/pagination/PageMetaDto';
+import { PageDto } from '../../common/pagination/Page.dto';
 
 @Injectable()
 export class CampaignService {
@@ -39,8 +42,20 @@ export class CampaignService {
 		}
 	}
 
-	findAll() {
-		return `This action returns all campaign`;
+	async findAll(pageOptionsDto: PageOptionsDto) {
+		const queryBuider = this.campaignRepos
+			.createQueryBuilder('campaign')
+			.leftJoinAndSelect('campaign.workspace', 'workspace')
+			.orderBy('campaign.name', pageOptionsDto.order)
+			.skip(pageOptionsDto.skip)
+			.take(pageOptionsDto.take);
+
+		const itemCount = await queryBuider.getCount();
+		const { entities } = await queryBuider.getRawAndEntities();
+
+		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+		return new PageDto(entities, pageMetaDto);
 	}
 
 	async findOne(id: number) {
