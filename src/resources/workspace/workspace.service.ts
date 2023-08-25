@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { User } from '@resources/user/entities/user.entity';
 import { Role } from '@resources/role/entities/role.entity';
 import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
+import { findAllWorkSpace } from '@common/pagination/pagination.repository';
 
 @Injectable()
 export class WorkspaceService {
@@ -58,19 +59,8 @@ export class WorkspaceService {
 			throw new InternalServerErrorException(error.message);
 		}
 	}
-
-	async findAll(page = 1, take = 7) {
-		const skip = (page - 1) * take;
-		const [data, count] = await this.workspaceRepos.findAndCount({
-			skip,
-			take,
-		});
-		return {
-			data,
-			count,
-			totalPages: Math.ceil(count / take),
-			currentPage: page,
-		};
+	async findAll(page = 2, take = 5) {
+		return findAllWorkSpace(this.workspaceRepos, page, take);
 	}
 
 	async findOne(id: number) {
