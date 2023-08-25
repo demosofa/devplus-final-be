@@ -8,10 +8,13 @@ import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Workspace } from './entities/workspace.entity';
-import { Repository } from 'typeorm';
+import { QueryBuilder, Repository } from 'typeorm';
 import { User } from '@resources/user/entities/user.entity';
 import { Role } from '@resources/role/entities/role.entity';
 import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
+import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
+import { PageMetaDto } from '../../common/pagination/PageMetaDto';
+import { PageDto } from '../../common/pagination/Page.dto';
 
 @Injectable()
 export class WorkspaceService {
@@ -59,18 +62,20 @@ export class WorkspaceService {
 		}
 	}
 
-	async findAll(page = 1, take = 7) {
-		const skip = (page - 1) * take;
-		const [data, count] = await this.workspaceRepos.findAndCount({
-			skip,
-			take,
-		});
-		return {
-			data,
-			count,
-			totalPages: Math.ceil(count / take),
-			currentPage: page,
-		};
+	async findAll(pageOptionsDto: PageOptionsDto) {
+		const queryBuider = this.workspaceRepos.createQueryBuilder('workspace');
+
+		queryBuider
+			.orderBy('workspace.title_workspace', pageOptionsDto.order)
+			.skip(pageOptionsDto.skip)
+			.take(pageOptionsDto.take);
+
+		const itemCount = await queryBuider.getCount();
+		const { entities } = await queryBuider.getRawAndEntities();
+
+		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+		return new PageDto(entities, pageMetaDto);
 	}
 
 	async findOne(id: number) {
