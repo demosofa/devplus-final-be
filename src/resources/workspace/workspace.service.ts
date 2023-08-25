@@ -1,4 +1,4 @@
-import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
+import { Repository } from 'typeorm';
 import {
 	BadRequestException,
 	Injectable,
@@ -6,16 +6,16 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Role } from '@resources/role/entities/role.entity';
 import { User } from '@resources/user/entities/user.entity';
-import { Repository } from 'typeorm';
 import { PageDto } from '../../common/pagination/Page.dto';
 import { PageMetaDto } from '../../common/pagination/PageMetaDto';
 import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { Workspace } from './entities/workspace.entity';
-
+import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
 @Injectable()
 export class WorkspaceService {
 	constructor(
@@ -63,9 +63,8 @@ export class WorkspaceService {
 	}
 
 	async findAll(pageOptionsDto: PageOptionsDto) {
-		const queryBuider = this.workspaceRepos.createQueryBuilder('workspace');
-
-		queryBuider
+		const queryBuider = this.workspaceRepos
+			.createQueryBuilder('workspace')
 			.orderBy('workspace.title_workspace', pageOptionsDto.order)
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
