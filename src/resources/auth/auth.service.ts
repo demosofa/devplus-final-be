@@ -1,5 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { hashSync, compareSync } from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { IAuthService } from './auth.interface';
@@ -19,7 +19,7 @@ export class AuthService implements IAuthService {
 
 		const { id, email, name, password, role, status } = user;
 
-		const check = compareSync(loginUserDto.password, password);
+		const check = await bcrypt.compare(loginUserDto.password, password);
 		if (!check) throw new UnauthorizedException('Can not find the account');
 
 		return this.jwtService.signAsync({
@@ -32,8 +32,6 @@ export class AuthService implements IAuthService {
 	}
 
 	async register(registerUserDto: RegisterUserDto) {
-		registerUserDto.password = hashSync(registerUserDto.password, 10);
-
 		const { id, email, name, role, status } = await this.userService.create(
 			registerUserDto
 		);
