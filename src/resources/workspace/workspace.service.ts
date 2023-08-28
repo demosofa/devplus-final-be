@@ -79,7 +79,8 @@ export class WorkspaceService {
 
 	async findOne(id: number) {
 		const isExist = await this.workspaceRepos.findOne({
-			where: { id, campaign: true },
+			where: { id },
+			relations: { campaign: true },
 		});
 		if (isExist) return isExist;
 		throw new NotFoundException('This workspace is not existed');
