@@ -7,22 +7,23 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { UserService } from '@resources/user/user.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { AuthUser } from '@common/types';
 import { USER_STATUS } from '@common/enums';
+import { User } from '@resources/user/entities/user.entity';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
 	constructor(
+		@InjectRepository(User) private useRepos: Repository<User>,
 		private jwtService: JwtService,
-		private configService: ConfigService,
-		private userService: UserService
+		private configService: ConfigService
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const req = context
-			.switchToHttp()
-			.getRequest<Request & { user: AuthUser }>();
+		const req = context.switchToHttp().getRequest<Request & { user: User }>();
 
 		const auth = req.headers.authorization;
 		if (!auth) throw new UnauthorizedException('There is no authorization');
@@ -37,15 +38,21 @@ export class AuthGuard implements CanActivate {
 				secret,
 			});
 
-			const result = await this.userService.findById(payload.id);
-			if (!result || result.role.name != payload.role)
+			const user = await this.useRepos.findOne({
+				where: { id: payload.id },
+				relations: {
+					role: true,
+				},
+			});
+
+			if (!user || user.role.name != payload.role)
 				throw new Error('There is no user');
-			else if (result.status == USER_STATUS.DISABLE)
+			else if (user.status == USER_STATUS.DISABLE)
 				throw new Error(
 					'Your account have been disabled, please contact to super admin'
 				);
 
-			req.user = payload;
+			req.user = user;
 
 			return true;
 		} catch (error) {

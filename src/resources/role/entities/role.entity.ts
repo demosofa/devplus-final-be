@@ -7,8 +7,9 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
 import { User } from '@resources/user/entities/user.entity';
+import { ROLE } from '@common/enums';
 
 @Entity()
 export class Role extends BaseEntity {
@@ -16,9 +17,9 @@ export class Role extends BaseEntity {
 	id: number;
 
 	@IsNotEmpty()
-	@IsString()
-	@Column({ unique: true })
-	name: string;
+	@IsEnum(ROLE)
+	@Column({ unique: true, enum: ROLE })
+	name: ROLE;
 
 	@OneToMany(() => User, (user) => user.role)
 	user: User[];
