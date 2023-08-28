@@ -3,11 +3,12 @@ import {
 	BadRequestException,
 	NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { IUserService } from './user.interface';
 import { User } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ROLE } from '@common/enums';
 import { RoleService } from '@resources/role/role.service';
 
@@ -26,12 +27,15 @@ export class UserService implements IUserService {
 			throw new BadRequestException(
 				'The user with this email is already existed'
 			);
+
 		let role = await this.roleService.findOne(ROLE.USER);
 		if (!role) {
 			role = await this.roleService.findOne(ROLE.ADMIN);
+
 			if (!role) role = await this.roleService.create({ name: ROLE.ADMIN });
 			else role = await this.roleService.create({ name: ROLE.USER });
 		}
+
 		const user = this.userRepos.create({ ...createUserDto, role });
 		return this.userRepos.save(user);
 	}
@@ -68,11 +72,13 @@ export class UserService implements IUserService {
 			const isExist = await this.userRepos.findOneBy({
 				email: updateUserDto.email,
 			});
+
 			if (isExist)
 				throw new BadRequestException(
 					'The user with this email is already existed'
 				);
 		}
+
 		return this.userRepos.save({ ...user, ...updateUserDto });
 	}
 
