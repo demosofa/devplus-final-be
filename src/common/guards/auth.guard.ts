@@ -6,11 +6,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { AuthUser } from '@common/types';
+import { AuthRequest, AuthToken } from '@common/types';
 import { USER_STATUS } from '@common/enums';
 import { User } from '@resources/user/entities/user.entity';
 
@@ -23,7 +22,7 @@ export class AuthGuard implements CanActivate {
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const req = context.switchToHttp().getRequest<Request & { user: User }>();
+		const req = context.switchToHttp().getRequest<AuthRequest>();
 
 		const auth = req.headers.authorization;
 		if (!auth) throw new UnauthorizedException('There is no authorization');
@@ -34,7 +33,7 @@ export class AuthGuard implements CanActivate {
 
 		try {
 			const secret = this.configService.get('SECRET');
-			const payload = await this.jwtService.verifyAsync<AuthUser>(token, {
+			const payload = await this.jwtService.verifyAsync<AuthToken>(token, {
 				secret,
 			});
 
