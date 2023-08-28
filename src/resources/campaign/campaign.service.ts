@@ -43,15 +43,15 @@ export class CampaignService {
 	}
 
 	async findAll(pageOptionsDto: PageOptionsDto) {
-		const queryBuider = this.campaignRepos
+		const queryBuilder = this.campaignRepos
 			.createQueryBuilder('campaign')
 			.leftJoinAndSelect('campaign.workspace', 'workspace')
 			.orderBy('campaign.name', pageOptionsDto.order)
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
 
-		const itemCount = await queryBuider.getCount();
-		const { entities } = await queryBuider.getRawAndEntities();
+		const itemCount = await queryBuilder.getCount();
+		const { entities } = await queryBuilder.getRawAndEntities();
 
 		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
