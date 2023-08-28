@@ -26,7 +26,7 @@ export class CampaignService {
 		private readonly workspaceService: WorkspaceService
 	) {}
 
-	async create(createCampaignDto: CreateCampaignDto) {
+	async create(userId: number, createCampaignDto: CreateCampaignDto) {
 		try {
 			const { workspaceId, ...campaignDto } = createCampaignDto;
 			const workspace = await this.workspaceService.findOne(workspaceId);

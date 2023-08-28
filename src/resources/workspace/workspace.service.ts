@@ -115,10 +115,17 @@ export class WorkspaceService {
 	}
 
 	async findAllUser(id: number, pageOptionsDto: PageOptionsDto) {
-		const userQueryBuilder = this.workspaceRepos
+		const userQueryBuilder = this.userRepos
 			.createQueryBuilder('user')
-			.leftJoinAndSelect('user.workspace', 'workspace')
-			.orderBy('workspace.title_workspace', pageOptionsDto.order)
+			.select([
+				'user.id',
+				'user.name',
+				'user.email',
+				'user.phone_number',
+				'user.status',
+			])
+			.innerJoin('user.workspace', 'workspace')
+			.orderBy('user.name', pageOptionsDto.order)
 			.where('workspace.id = :id', { id })
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);

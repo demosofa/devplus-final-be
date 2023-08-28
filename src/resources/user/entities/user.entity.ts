@@ -5,12 +5,14 @@ import {
 	CreateDateColumn,
 	UpdateDateColumn,
 	ManyToOne,
+	OneToMany,
 } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Role } from '@resources/role/entities/role.entity';
 import { Workspace } from '@resources/workspace/entities/workspace.entity';
 import { USER_STATUS } from '@common/enums/user-status';
+import { Campaign } from '@resources/campaign/entities/campaign.entity';
 
 @Entity()
 export class User {
@@ -42,6 +44,9 @@ export class User {
 		onDelete: 'CASCADE',
 	})
 	workspace: Workspace;
+
+	@OneToMany(() => Campaign, (campaign) => campaign.user)
+	campaign: Campaign;
 
 	@ManyToOne(() => Role, (role) => role.user)
 	role: Role;

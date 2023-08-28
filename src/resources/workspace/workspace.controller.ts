@@ -32,8 +32,7 @@ export class WorkspaceController {
 
 	@Get(':id')
 	async findOne(@Param('id') id: string) {
-		const result = await this.workspaceService.findOne(+id);
-		return new ResponseItem(result, 'Successfully');
+		return await this.workspaceService.findOne(+id);
 	}
 	@Get(':id/campaign')
 	findAllCampaign(
