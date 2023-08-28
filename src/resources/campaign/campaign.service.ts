@@ -16,6 +16,7 @@ import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
 import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
 import { PageMetaDto } from '../../common/pagination/PageMetaDto';
 import { PageDto } from '../../common/pagination/Page.dto';
+import { User } from '@resources/user/entities/user.entity';
 
 @Injectable()
 export class CampaignService {
@@ -26,12 +27,16 @@ export class CampaignService {
 		private readonly workspaceService: WorkspaceService
 	) {}
 
-	async create(userId: number, createCampaignDto: CreateCampaignDto) {
+	async create(user: User, createCampaignDto: CreateCampaignDto) {
 		try {
 			const { workspaceId, ...campaignDto } = createCampaignDto;
 			const workspace = await this.workspaceService.findOne(workspaceId);
 
-			const campaign = this.campaignRepos.create({ ...campaignDto, workspace });
+			const campaign = this.campaignRepos.create({
+				...campaignDto,
+				workspace,
+				user,
+			});
 			const savedCampaign = await this.campaignRepos.save(campaign);
 
 			this.expire(savedCampaign.id, savedCampaign.expired_time);
