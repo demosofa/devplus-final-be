@@ -14,6 +14,7 @@ import { ROLE, WORKSPACE_STATUS } from '../../common/enums';
 import { PageOptionsDto } from './../../common/pagination/PageOptionDto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspaceService } from './workspace.service';
+import { ResponseItem } from '@common/types';
 
 @Controller('workspace')
 export class WorkspaceController {
@@ -30,8 +31,23 @@ export class WorkspaceController {
 	}
 
 	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.workspaceService.findOne(+id);
+	async findOne(@Param('id') id: string) {
+		return await this.workspaceService.findOne(+id);
+	}
+	@Get(':id/campaign')
+	findAllCampaign(
+		@Param('id') id: string,
+		@Query() pageOptionsDto: PageOptionsDto
+	) {
+		return this.workspaceService.findAllCampaign(+id, pageOptionsDto);
+	}
+
+	@Get(':id/user')
+	findAllUser(
+		@Param('id') id: string,
+		@Query() pageOptionsDto: PageOptionsDto
+	) {
+		return this.workspaceService.findAllUser(+id, pageOptionsDto);
 	}
 
 	@Auth(ROLE.SUPER_ADMIN)

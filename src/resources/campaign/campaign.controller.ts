@@ -12,14 +12,16 @@ import { CampaignService } from './campaign.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
+import { ReqUser } from '@common/decorators';
+import { User } from '@resources/user/entities/user.entity';
 
 @Controller('campaign')
 export class CampaignController {
 	constructor(private readonly campaignService: CampaignService) {}
 
 	@Post()
-	create(@Body() createCampaignDto: CreateCampaignDto) {
-		return this.campaignService.create(createCampaignDto);
+	create(@ReqUser() user: User, @Body() createCampaignDto: CreateCampaignDto) {
+		return this.campaignService.create(user, createCampaignDto);
 	}
 
 	@Get()

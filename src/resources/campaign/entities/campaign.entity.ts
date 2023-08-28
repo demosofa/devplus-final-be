@@ -1,5 +1,6 @@
 import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
 import { Cv } from '@resources/cv/entities/cv.entity';
+import { User } from '@resources/user/entities/user.entity';
 import { Workspace } from '@resources/workspace/entities/workspace.entity';
 import {
 	BaseEntity,
@@ -29,6 +30,9 @@ export class Campaign extends BaseEntity {
 
 	@ManyToOne(() => Workspace, (workspace) => workspace.campaign)
 	workspace: Workspace;
+
+	@ManyToOne(() => User, (user) => user.campaign)
+	user: User;
 
 	@OneToMany(() => Cv, (cv) => cv.campaign)
 	cv: Cv[];
