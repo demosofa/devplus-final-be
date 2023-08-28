@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import bcrypt from 'bcrypt';
 
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { IUserService } from './user.interface';
@@ -36,7 +37,9 @@ export class UserService implements IUserService {
 			else role = await this.roleService.create({ name: ROLE.USER });
 		}
 
+		createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
 		const user = this.userRepos.create({ ...createUserDto, role });
+
 		return this.userRepos.save(user);
 	}
 
