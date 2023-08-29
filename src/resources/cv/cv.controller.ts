@@ -6,10 +6,12 @@ import {
 	Patch,
 	Param,
 	Delete,
+	Query,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
+import { PageOptionsDto } from '@common/pagination/PageOptionDto';
 
 @Controller('cv')
 export class CvController {
@@ -21,8 +23,8 @@ export class CvController {
 	}
 
 	@Get()
-	findAll() {
-		return this.cvService.findAll();
+	findAll(@Query() pageOptionsDto: PageOptionsDto) {
+		return this.cvService.findAll(pageOptionsDto);
 	}
 
 	@Get(':id')
