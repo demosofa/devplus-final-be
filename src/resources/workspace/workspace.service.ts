@@ -16,6 +16,7 @@ import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { Workspace } from './entities/workspace.entity';
 import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
+import { Campaign } from '@resources/campaign/entities/campaign.entity';
 @Injectable()
 export class WorkspaceService {
 	constructor(
@@ -23,7 +24,9 @@ export class WorkspaceService {
 		@InjectRepository(User)
 		private readonly userRepos: Repository<User>,
 		@InjectRepository(Role)
-		private readonly roleRepos: Repository<Role>
+		private readonly roleRepos: Repository<Role>,
+		@InjectRepository(Campaign)
+		private readonly campaignRepos: Repository<Campaign>
 	) {}
 
 	async create(createWorkspaceDto: CreateWorkspaceDto): Promise<Workspace> {
@@ -63,26 +66,79 @@ export class WorkspaceService {
 	}
 
 	async findAll(pageOptionsDto: PageOptionsDto) {
-		const queryBuider = this.workspaceRepos
+		const queryBuilder = this.workspaceRepos
 			.createQueryBuilder('workspace')
 			.orderBy('workspace.title_workspace', pageOptionsDto.order)
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
 
-		const itemCount = await queryBuider.getCount();
-		const { entities } = await queryBuider.getRawAndEntities();
+		const itemCount = await queryBuilder.getCount();
+		const { entities } = await queryBuilder.getRawAndEntities();
 
 		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
 		return new PageDto(entities, pageMetaDto);
 	}
-
 	async findOne(id: number) {
 		const isExist = await this.workspaceRepos.findOne({
-			where: { id, campaign: true },
+			where: { id },
 		});
-		if (isExist) return isExist;
-		throw new NotFoundException('This workspace is not existed');
+		if (!isExist) throw new NotFoundException('This workspace is not existed');
+		return isExist;
+	}
+
+	async findAllCampaign(id: number, pageOptionsDto: PageOptionsDto) {
+		const campaignQueryBuilder = this.campaignRepos
+			.createQueryBuilder('campaign')
+			.select([
+				'campaign.id',
+				'campaign.name',
+				'campaign.description',
+				'campaign.expired_time',
+				'campaign.status',
+			])
+			.innerJoin('campaign.workspace', 'workspace')
+			.orderBy('campaign.name', pageOptionsDto.order)
+			.where('workspace.id = :id', { id })
+			.skip(pageOptionsDto.skip)
+			.take(pageOptionsDto.take);
+
+		const campaignCount = await campaignQueryBuilder.getCount();
+		const { entities } = await campaignQueryBuilder.getRawAndEntities();
+
+		const pageMetaDto = new PageMetaDto({
+			itemCount: campaignCount,
+			pageOptionsDto,
+		});
+
+		return new PageDto(entities, pageMetaDto);
+	}
+
+	async findAllUser(id: number, pageOptionsDto: PageOptionsDto) {
+		const userQueryBuilder = this.userRepos
+			.createQueryBuilder('user')
+			.select([
+				'user.id',
+				'user.name',
+				'user.email',
+				'user.phone_number',
+				'user.status',
+			])
+			.innerJoin('user.workspace', 'workspace')
+			.orderBy('user.name', pageOptionsDto.order)
+			.where('workspace.id = :id', { id })
+			.skip(pageOptionsDto.skip)
+			.take(pageOptionsDto.take);
+
+		const userCount = await userQueryBuilder.getCount();
+		const { entities } = await userQueryBuilder.getRawAndEntities();
+
+		const pageMetaDto = new PageMetaDto({
+			itemCount: userCount,
+			pageOptionsDto,
+		});
+
+		return new PageDto(entities, pageMetaDto);
 	}
 
 	async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto) {

@@ -16,6 +16,7 @@ import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
 import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
 import { PageMetaDto } from '../../common/pagination/PageMetaDto';
 import { PageDto } from '../../common/pagination/Page.dto';
+import { User } from '@resources/user/entities/user.entity';
 
 @Injectable()
 export class CampaignService {
@@ -26,12 +27,16 @@ export class CampaignService {
 		private readonly workspaceService: WorkspaceService
 	) {}
 
-	async create(createCampaignDto: CreateCampaignDto) {
+	async create(user: User, createCampaignDto: CreateCampaignDto) {
 		try {
 			const { workspaceId, ...campaignDto } = createCampaignDto;
 			const workspace = await this.workspaceService.findOne(workspaceId);
 
-			const campaign = this.campaignRepos.create({ ...campaignDto, workspace });
+			const campaign = this.campaignRepos.create({
+				...campaignDto,
+				workspace,
+				user,
+			});
 			const savedCampaign = await this.campaignRepos.save(campaign);
 
 			this.expire(savedCampaign.id, savedCampaign.expired_time);
@@ -43,15 +48,15 @@ export class CampaignService {
 	}
 
 	async findAll(pageOptionsDto: PageOptionsDto) {
-		const queryBuider = this.campaignRepos
+		const queryBuilder = this.campaignRepos
 			.createQueryBuilder('campaign')
 			.leftJoinAndSelect('campaign.workspace', 'workspace')
 			.orderBy('campaign.name', pageOptionsDto.order)
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
 
-		const itemCount = await queryBuider.getCount();
-		const { entities } = await queryBuider.getRawAndEntities();
+		const itemCount = await queryBuilder.getCount();
+		const { entities } = await queryBuilder.getRawAndEntities();
 
 		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
@@ -97,7 +102,18 @@ export class CampaignService {
 		this.schedulerRegistry.addTimeout(timeOutName, timeout);
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} campaign`;
+	async remove(id: number) {
+		const campaign = await this.campaignRepos.findOne({
+			where: { id },
+			relations: {
+				cv: true,
+			},
+		});
+
+		if (!campaign) {
+			throw new NotFoundException(`Campaign with ID ${id} not found`);
+		}
+
+		await this.campaignRepos.remove(campaign);
 	}
 }

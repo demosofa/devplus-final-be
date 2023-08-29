@@ -9,11 +9,12 @@ import {
 	Query,
 } from '@nestjs/common';
 
-import { Auth } from '../../common/decorators';
-import { ROLE, WORKSPACE_STATUS } from '../../common/enums';
+// import { Auth } from '../../common/decorators';
+import { WORKSPACE_STATUS } from '../../common/enums';
 import { PageOptionsDto } from './../../common/pagination/PageOptionDto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspaceService } from './workspace.service';
+// import { ResponseItem } from '@common/types';
 
 @Controller('workspace')
 export class WorkspaceController {
@@ -30,20 +31,35 @@ export class WorkspaceController {
 	}
 
 	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.workspaceService.findOne(+id);
+	async findOne(@Param('id') id: string) {
+		return await this.workspaceService.findOne(+id);
+	}
+	@Get(':id/campaign')
+	findAllCampaign(
+		@Param('id') id: string,
+		@Query() pageOptionsDto: PageOptionsDto
+	) {
+		return this.workspaceService.findAllCampaign(+id, pageOptionsDto);
 	}
 
-	@Auth(ROLE.SUPER_ADMIN)
+	@Get(':id/user')
+	findAllUser(
+		@Param('id') id: string,
+		@Query() pageOptionsDto: PageOptionsDto
+	) {
+		return this.workspaceService.findAllUser(+id, pageOptionsDto);
+	}
+
 	@Patch('accept/:id')
+	// @Auth(ROLE.SUPER_ADMIN)
 	accept(@Param('id') id: string) {
 		return this.workspaceService.update(+id, {
 			status: WORKSPACE_STATUS.ACCEPT,
 		});
 	}
 
-	@Auth(ROLE.SUPER_ADMIN)
 	@Delete('reject/:id')
+	// @Auth(ROLE.SUPER_ADMIN)
 	reject(@Param('id') id: string) {
 		return this.workspaceService.remove(+id);
 	}

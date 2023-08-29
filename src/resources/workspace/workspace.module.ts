@@ -7,10 +7,11 @@ import { RoleModule } from '../role/role.module';
 import { UserModule } from '../user/user.module';
 import { User } from '@resources/user/entities/user.entity';
 import { Role } from '@resources/role/entities/role.entity';
+import { Campaign } from '@resources/campaign/entities/campaign.entity';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Workspace, User, Role]),
+		TypeOrmModule.forFeature([Workspace, User, Role, Campaign]),
 		RoleModule,
 		UserModule,
 	],
