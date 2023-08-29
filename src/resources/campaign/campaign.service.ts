@@ -102,7 +102,18 @@ export class CampaignService {
 		this.schedulerRegistry.addTimeout(timeOutName, timeout);
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} campaign`;
+	async remove(id: number) {
+		const campaign = await this.campaignRepos.findOne({
+			where: { id },
+			relations: {
+				cv: true,
+			},
+		});
+
+		if (!campaign) {
+			throw new NotFoundException(`Campaign with ID ${id} not found`);
+		}
+
+		await this.campaignRepos.remove(campaign);
 	}
 }
