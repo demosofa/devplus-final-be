@@ -1,17 +1,16 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
-	Param,
+	Controller,
 	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
 	Query,
 } from '@nestjs/common';
+import { CV_STATUS } from '../../common/enums/cv-status';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
-import { UpdateCvDto } from './dto/update-cv.dto';
-import { PageOptionsDto } from '@common/pagination/PageOptionDto';
 import { SearchCvDto } from './dto/search-cv.dto';
 
 @Controller('cv')
@@ -33,13 +32,23 @@ export class CvController {
 		return this.cvService.findOne(+id);
 	}
 
-	@Patch(':id')
-	update(@Param('id') id: string, @Body() updateCvDto: UpdateCvDto) {
-		return this.cvService.update(+id, updateCvDto);
-	}
-
 	@Delete(':id')
 	remove(@Param('id') id: string) {
 		return this.cvService.remove(+id);
+	}
+
+	@Patch('pass/:id')
+	// @Auth(ROLE.ADMIN)
+	pass(@Param('id') id: string) {
+		return this.cvService.update(+id, {
+			status: CV_STATUS.PASS,
+		});
+	}
+
+	@Patch('fail/:id')
+	fail(@Param('id') id: string) {
+		return this.cvService.updateFail(+id, {
+			status: CV_STATUS.FAIL,
+		});
 	}
 }

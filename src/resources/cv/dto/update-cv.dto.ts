@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateCvDto } from './create-cv.dto';
+import { IsEnum, IsOptional } from 'class-validator';
+import { CV_STATUS } from '../../../common/enums/cv-status';
 
-export class UpdateCvDto extends PartialType(CreateCvDto) {}
+export class UpdateCvDto {
+	@IsOptional()
+	@IsEnum(CV_STATUS)
+	status?: CV_STATUS;
+}
