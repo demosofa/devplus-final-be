@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { CvService } from './cv.service';
 import { CvController } from './cv.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cv } from './entities/cv.entity';
 import { User } from '../user/entities/user.entity';
 import { RoleModule } from '../role/role.module';

@@ -1,9 +1,10 @@
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+
 import { PageDto } from '@common/pagination/Page.dto';
 import { PageMetaDto } from '@common/pagination/PageMetaDto';
 import { PageOptionsDto } from '@common/pagination/PageOptionDto';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Role } from '../role/entities/role.entity';
 import { User } from '../user/entities/user.entity';
 import { CreateCvDto } from './dto/create-cv.dto';
