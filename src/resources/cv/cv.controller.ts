@@ -12,6 +12,7 @@ import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { PageOptionsDto } from '@common/pagination/PageOptionDto';
+import { SearchCvDto } from './dto/search-cv.dto';
 
 @Controller('cv')
 export class CvController {
@@ -23,8 +24,8 @@ export class CvController {
 	}
 
 	@Get()
-	findAll(@Query() pageOptionsDto: PageOptionsDto) {
-		return this.cvService.findAll(pageOptionsDto);
+	findAll(@Query() searchCvDto: SearchCvDto) {
+		return this.cvService.findAll(searchCvDto);
 	}
 
 	@Get(':id')
