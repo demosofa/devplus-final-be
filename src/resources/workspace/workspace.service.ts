@@ -83,7 +83,7 @@ export class WorkspaceService {
 		const isExist = await this.workspaceRepos.findOne({
 			where: { id },
 		});
-		if (!isExist) throw new NotFoundException('This cv is not existed');
+		if (!isExist) throw new NotFoundException('This workspace is not existed');
 		return isExist;
 	}
 

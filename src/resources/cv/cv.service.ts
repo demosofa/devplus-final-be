@@ -52,8 +52,7 @@ export class CvService {
 				campaign: true,
 			},
 		});
-		if (!findOneCv)
-			throw new NotFoundException('This workspace is not existed');
+		if (!findOneCv) throw new NotFoundException('This cv is not existed');
 		return findOneCv;
 	}
 
