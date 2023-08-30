@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { PageOptionsDto } from '@common/pagination/PageOptionDto';
@@ -45,8 +45,16 @@ export class CvService {
 		return new PageDto(entities, pageMetaDto);
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} cv`;
+	async findOne(id: number) {
+		const findOneCv = await this.cvRepos.findOne({
+			where: { id },
+			relations: {
+				campaign: true,
+			},
+		});
+		if (!findOneCv)
+			throw new NotFoundException('This workspace is not existed');
+		return findOneCv;
 	}
 
 	update(id: number, updateCvDto: UpdateCvDto) {
