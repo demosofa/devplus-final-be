@@ -1,18 +1,17 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
-	Param,
+	Controller,
 	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
 	Query,
 } from '@nestjs/common';
+import { CV_STATUS } from '../../common/enums/cv-status';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
-import { PageOptionsDto } from '@common/pagination/PageOptionDto';
 import { SearchCvDto } from './dto/search-cv.dto';
-import { CV_STATUS } from '../../common/enums/cv-status';
 
 @Controller('cv')
 export class CvController {
