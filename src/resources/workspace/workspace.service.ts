@@ -68,7 +68,7 @@ export class WorkspaceService {
 	async findAll(pageOptionsDto: PageOptionsDto) {
 		const queryBuilder = this.workspaceRepos
 			.createQueryBuilder('workspace')
-			.orderBy('workspace.title_workspace', pageOptionsDto.order)
+			.orderBy('workspace.id', pageOptionsDto.order)
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
 

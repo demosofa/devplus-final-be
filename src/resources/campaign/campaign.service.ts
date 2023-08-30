@@ -51,7 +51,7 @@ export class CampaignService {
 		const queryBuilder = this.campaignRepos
 			.createQueryBuilder('campaign')
 			.leftJoinAndSelect('campaign.workspace', 'workspace')
-			.orderBy('campaign.name', pageOptionsDto.order)
+			.orderBy('campaign.id', pageOptionsDto.order)
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
 
