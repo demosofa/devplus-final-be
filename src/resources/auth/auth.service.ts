@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { IAuthService } from './auth.interface';
 import { LoginUserDto, RegisterUserDto } from './dto';
 import { IUserService } from '../user/user.interface';
-import { ROLE } from '@common/enums';
+import { ROLE, USER_STATUS } from '@common/enums';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -19,6 +19,11 @@ export class AuthService implements IAuthService {
 		if (!user) throw new UnauthorizedException();
 
 		const { id, email, name, password, role, status } = user;
+
+		if (status == USER_STATUS.DISABLE)
+			throw new UnauthorizedException(
+				'Your account is disabled, please contact to super admin'
+			);
 
 		const check = await compare(loginUserDto.password, password);
 		if (!check) throw new UnauthorizedException('Can not find the account');
