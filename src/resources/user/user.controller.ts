@@ -7,6 +7,7 @@ import {
 	Delete,
 	Param,
 	UseGuards,
+	Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,6 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@common/guards';
 import { Auth } from '@common/decorators';
 import { ROLE } from '@common/enums';
+import { PageOptionsDto } from '@common/pagination/PageOptionDto';
 
 @Controller('user')
 export class UserController {
@@ -25,8 +27,8 @@ export class UserController {
 	}
 
 	@Get()
-	findAll() {
-		return this.userService.findAll();
+	findAll(@Query() pageOptionsDto: PageOptionsDto) {
+		return this.userService.findAll(pageOptionsDto);
 	}
 
 	@Get(':id')

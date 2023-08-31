@@ -12,6 +12,9 @@ import { IUserService } from './user.interface';
 import { User } from './entities/user.entity';
 import { ROLE } from '@common/enums';
 import { RoleService } from '@resources/role/role.service';
+import { PageOptionsDto } from '@common/pagination/PageOptionDto';
+import { PageMetaDto } from '@common/pagination/PageMetaDto';
+import { PageDto } from '@common/pagination/Page.dto';
 
 @Injectable()
 export class UserService implements IUserService {
@@ -43,8 +46,19 @@ export class UserService implements IUserService {
 		return this.userRepos.save(user);
 	}
 
-	async findAll() {
-		return this.userRepos.find();
+	async findAll(pageOptionsDto: PageOptionsDto) {
+		const queryBuilder = this.userRepos
+			.createQueryBuilder('user')
+			.orderBy('user.id', pageOptionsDto.order)
+			.skip(pageOptionsDto.skip)
+			.take(pageOptionsDto.take);
+
+		const itemCount = await queryBuilder.getCount();
+		const { entities } = await queryBuilder.getRawAndEntities();
+
+		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+		return new PageDto(entities, pageMetaDto);
 	}
 
 	async findById(id: number) {
