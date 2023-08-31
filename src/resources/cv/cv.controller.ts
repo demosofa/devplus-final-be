@@ -7,18 +7,26 @@ import {
 	Patch,
 	Post,
 	Query,
+	UploadedFile,
+	UseInterceptors,
 } from '@nestjs/common';
 import { CV_STATUS } from '../../common/enums/cv-status';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { SearchCvDto } from './dto/search-cv.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('cv')
 export class CvController {
 	constructor(private readonly cvService: CvService) {}
 
 	@Post()
-	create(@Body() createCvDto: CreateCvDto) {
+	@UseInterceptors(FileInterceptor('file'))
+	create(
+		@UploadedFile() file: Express.Multer.File,
+		@Body() createCvDto: CreateCvDto
+	) {
+		if (file) createCvDto.file = file.path;
 		return this.cvService.create(createCvDto);
 	}
 
