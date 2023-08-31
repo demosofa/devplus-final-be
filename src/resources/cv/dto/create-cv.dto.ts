@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCvDto {
 	@IsOptional()
@@ -15,6 +15,7 @@ export class CreateCvDto {
 	apply_position: string;
 
 	@IsOptional()
+	@IsString()
 	file: string;
 
 	@IsNotEmpty()
