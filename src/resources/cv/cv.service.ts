@@ -5,6 +5,7 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
+import { unlinkSync } from 'fs';
 
 import { PageDto } from '@common/pagination/Page.dto';
 import { PageMetaDto } from '@common/pagination/PageMetaDto';
@@ -16,7 +17,6 @@ import { SearchCvDto } from './dto/search-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { Cv } from './entities/cv.entity';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
-import { unlinkSync } from 'fs';
 
 @Injectable()
 export class CvService {
