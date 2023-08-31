@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import { hash } from 'bcrypt';
 
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { IUserService } from './user.interface';
 import { User } from './entities/user.entity';
-import { ROLE } from '@common/enums';
 import { RoleService } from '@resources/role/role.service';
+import { Role } from '@resources/role/entities/role.entity';
 
 @Injectable()
 export class UserService implements IUserService {
@@ -21,24 +21,23 @@ export class UserService implements IUserService {
 	) {}
 
 	async create(createUserDto: CreateUserDto) {
+		const { roleName, ...data } = createUserDto;
 		const isExist = await this.userRepos.findOneBy({
 			email: createUserDto.email,
 		});
+
 		if (isExist)
 			throw new BadRequestException(
 				'The user with this email is already existed'
 			);
 
-		let role = await this.roleService.findOne(ROLE.USER);
+		let role = await this.roleService.findOne(roleName);
 		if (!role) {
-			role = await this.roleService.findOne(ROLE.ADMIN);
-
-			if (!role) role = await this.roleService.create({ name: ROLE.ADMIN });
-			else role = await this.roleService.create({ name: ROLE.USER });
+			role = await this.roleService.create({ name: roleName });
 		}
 
-		createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-		const user = this.userRepos.create({ ...createUserDto, role });
+		data.password = await hash(data.password, 10);
+		const user = this.userRepos.create({ ...data, role });
 
 		return this.userRepos.save(user);
 	}
@@ -70,6 +69,7 @@ export class UserService implements IUserService {
 	}
 
 	async update(id: number, updateUserDto: UpdateUserDto) {
+		const { roleName, ...data } = updateUserDto;
 		const user = await this.findById(id);
 		if (user.email != updateUserDto.email) {
 			const isExist = await this.userRepos.findOneBy({
@@ -82,7 +82,15 @@ export class UserService implements IUserService {
 				);
 		}
 
-		return this.userRepos.save({ ...user, ...updateUserDto });
+		let role: Role = user.role;
+		if (roleName) {
+			role = await this.roleService.findOne(roleName);
+			if (!role) {
+				role = await this.roleService.create({ name: roleName });
+			}
+		}
+
+		return this.userRepos.save({ ...user, ...data, role });
 	}
 
 	async remove(id: number) {

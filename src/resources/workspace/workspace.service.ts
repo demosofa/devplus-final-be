@@ -6,6 +6,7 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { hash } from 'bcrypt';
 
 import { Role } from '@resources/role/entities/role.entity';
 import { User } from '@resources/user/entities/user.entity';
@@ -17,6 +18,7 @@ import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { Workspace } from './entities/workspace.entity';
 import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
+
 @Injectable()
 export class WorkspaceService {
 	constructor(
@@ -44,12 +46,16 @@ export class WorkspaceService {
 				throw new BadRequestException(
 					'There is already existed admin with this email'
 				);
+
 			let role = await this.roleRepos.findOneBy({ name: ROLE.ADMIN });
 			if (!role) {
 				const roleAdmin = this.roleRepos.create({ name: ROLE.ADMIN });
 				role = await this.roleRepos.save(roleAdmin);
 			}
+
 			const createdWorkspace = await this.workspaceRepos.save(workspace);
+
+			createAdminDto.password = await hash(createAdminDto.password, 10);
 
 			const admin = this.userRepos.create({
 				...createAdminDto,
@@ -57,6 +63,7 @@ export class WorkspaceService {
 				role,
 				workspace: createdWorkspace,
 			});
+
 			await this.userRepos.save(admin);
 
 			return createdWorkspace;

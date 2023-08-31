@@ -46,7 +46,7 @@ export class User {
 	workspace: Workspace;
 
 	@OneToMany(() => Campaign, (campaign) => campaign.user)
-	campaign: Campaign;
+	campaign: Campaign[];
 
 	@ManyToOne(() => Role, (role) => role.user)
 	role: Role;
