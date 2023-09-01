@@ -2,6 +2,7 @@ import {
 	Injectable,
 	BadRequestException,
 	NotFoundException,
+	InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -24,24 +25,28 @@ export class UserService implements IUserService {
 
 	async create(createUserDto: CreateUserDto) {
 		const { roleName, ...data } = createUserDto;
-		const isExist = await this.userRepos.findOneBy({
-			email: data.email,
-		});
+		try {
+			const isExist = await this.userRepos.findOneBy({
+				email: data.email,
+			});
 
-		if (isExist)
-			throw new BadRequestException(
-				'The user with this email is already existed'
-			);
+			if (isExist)
+				throw new BadRequestException(
+					'The user with this email is already existed'
+				);
 
-		let role = await this.roleService.findOne(roleName);
-		if (!role) {
-			role = await this.roleService.create({ name: roleName });
+			let role = await this.roleService.findOne(roleName);
+			if (!role) {
+				role = await this.roleService.create({ name: roleName });
+			}
+
+			data.password = await hash(data.password, 10);
+			const user = this.userRepos.create({ ...data, role });
+
+			return this.userRepos.save(user);
+		} catch (error) {
+			throw new InternalServerErrorException(error.message);
 		}
-
-		data.password = await hash(data.password, 10);
-		const user = this.userRepos.create({ ...data, role });
-
-		return this.userRepos.save(user);
 	}
 
 	async findAll(pageOptionsDto: PageOptionsDto) {
@@ -83,6 +88,7 @@ export class UserService implements IUserService {
 
 	async update(id: number, updateUserDto: UpdateUserDto) {
 		const { roleName, ...data } = updateUserDto;
+
 		const user = await this.findById(id);
 		if (user.email != updateUserDto.email) {
 			const isExist = await this.userRepos.findOneBy({
@@ -95,15 +101,19 @@ export class UserService implements IUserService {
 				);
 		}
 
-		let role = user.role;
-		if (roleName) {
-			role = await this.roleService.findOne(roleName);
-			if (!role) {
-				role = await this.roleService.create({ name: roleName });
+		try {
+			let role = user.role;
+			if (roleName) {
+				role = await this.roleService.findOne(roleName);
+				if (!role) {
+					role = await this.roleService.create({ name: roleName });
+				}
 			}
-		}
 
-		return this.userRepos.save({ ...user, ...data, role });
+			return this.userRepos.save({ ...user, ...data, role });
+		} catch (error) {
+			throw new InternalServerErrorException(error.message);
+		}
 	}
 
 	async remove(id: number) {

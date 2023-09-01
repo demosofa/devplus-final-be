@@ -9,20 +9,28 @@ import {
 	UseGuards,
 	Query,
 } from '@nestjs/common';
+
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@common/guards';
-import { Auth } from '@common/decorators';
+import { Auth, ReqUser } from '@common/decorators';
 import { ROLE } from '@common/enums';
 import { PageOptionsDto } from '@common/pagination/PageOptionDto';
+import { Workspace } from '@resources/workspace/entities/workspace.entity';
 
 @Controller('user')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
-	@Post()
-	create(@Body() createUserDto: CreateUserDto) {
+	@Post('hr')
+	@Auth(ROLE.ADMIN)
+	createHR(
+		@ReqUser('workspace') workspace: Workspace,
+		@Body() createUserDto: CreateUserDto
+	) {
+		createUserDto.roleName = ROLE.HR;
+		createUserDto.workspace = workspace;
 		return this.userService.create(createUserDto);
 	}
 
