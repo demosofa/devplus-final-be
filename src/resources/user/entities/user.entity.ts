@@ -6,6 +6,7 @@ import {
 	UpdateDateColumn,
 	ManyToOne,
 	OneToMany,
+	BaseEntity,
 } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
 import { Exclude } from 'class-transformer';
@@ -15,7 +16,7 @@ import { USER_STATUS } from '@common/enums/user-status';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
 

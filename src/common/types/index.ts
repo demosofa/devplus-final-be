@@ -1,3 +1,2 @@
-export * from './AuthToken.type';
-export * from './AuthRequest.type';
+export * from './auth.type';
 export * from './ResponseItem';
