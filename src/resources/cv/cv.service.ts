@@ -1,6 +1,11 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
+import { unlinkSync } from 'fs';
 
 import { PageDto } from '@common/pagination/Page.dto';
 import { PageMetaDto } from '@common/pagination/PageMetaDto';
@@ -11,6 +16,7 @@ import { CreateCvDto } from './dto/create-cv.dto';
 import { SearchCvDto } from './dto/search-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { Cv } from './entities/cv.entity';
+import { Campaign } from '@resources/campaign/entities/campaign.entity';
 
 @Injectable()
 export class CvService {
@@ -23,8 +29,23 @@ export class CvService {
 		private readonly roleRepos: Repository<Role>
 	) {}
 
-	create(createCvDto: CreateCvDto) {
-		return 'This action adds a new cv';
+	async create(createCvDto: CreateCvDto) {
+		try {
+			const campaign = await Campaign.findOneBy({
+				id: createCvDto.campaignId,
+			});
+			const cv = this.cvRepos.create(createCvDto);
+
+			return this.cvRepos.save({
+				...cv,
+				campaign,
+			});
+		} catch (error) {
+			if (createCvDto.file) {
+				unlinkSync(createCvDto.file);
+			}
+			throw new BadRequestException(error.message);
+		}
 	}
 
 	async findAll(searchCvDto: SearchCvDto) {

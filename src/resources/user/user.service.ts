@@ -25,7 +25,7 @@ export class UserService implements IUserService {
 	async create(createUserDto: CreateUserDto) {
 		const { roleName, ...data } = createUserDto;
 		const isExist = await this.userRepos.findOneBy({
-			email: createUserDto.email,
+			email: data.email,
 		});
 
 		if (isExist)
