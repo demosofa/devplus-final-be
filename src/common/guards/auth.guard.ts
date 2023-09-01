@@ -37,25 +37,17 @@ export class AuthGuard implements CanActivate {
 				secret,
 			});
 
-			const user = await this.useRepos.findOne({
-				where: { id: payload.id },
-				relations: {
-					role: true,
-				},
-			});
-
-			if (!user || user.role.name != payload.role)
-				throw new Error('There is no user');
-			else if (user.status == USER_STATUS.DISABLE)
+			if (payload.status == USER_STATUS.DISABLE) {
 				throw new Error(
 					'Your account have been disabled, please contact to super admin'
 				);
+			}
 
-			req.user = user;
+			req.user = payload;
 
 			return true;
 		} catch (error) {
-			throw new UnauthorizedException(error.message);
+			throw new UnauthorizedException('There is no user');
 		}
 	}
 }
