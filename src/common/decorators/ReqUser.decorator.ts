@@ -14,7 +14,7 @@ export const ReqUser = createParamDecorator(
 
 			const result = await User.findOne({
 				where: { id: user.id },
-				relations: [data],
+				relations: ['role', 'workspace', 'campaign'],
 			});
 
 			return data ? result?.[data] : result;
