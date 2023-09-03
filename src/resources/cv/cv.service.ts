@@ -52,7 +52,7 @@ export class CvService {
 		const findCv = this.cvRepos
 			.createQueryBuilder('cv')
 			.leftJoinAndSelect('cv.campaign', 'campaign')
-			.orderBy('cv.name', searchCvDto.order)
+			.orderBy('cv.id', searchCvDto.order)
 			.skip(searchCvDto.skip)
 			.take(searchCvDto.take);
 
