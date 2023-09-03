@@ -90,7 +90,7 @@ export class UserService implements IUserService {
 		const { roleName, ...data } = updateUserDto;
 
 		const user = await this.findById(id);
-		if (user.email != updateUserDto.email) {
+		if (updateUserDto.email && user.email != updateUserDto.email) {
 			const isExist = await this.userRepos.findOneBy({
 				email: updateUserDto.email,
 			});
