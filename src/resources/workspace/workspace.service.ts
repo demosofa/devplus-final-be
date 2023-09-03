@@ -105,7 +105,7 @@ export class WorkspaceService {
 				'campaign.status',
 			])
 			.innerJoin('campaign.workspace', 'workspace')
-			.orderBy('campaign.name', pageOptionsDto.order)
+			.orderBy('campaign.id', pageOptionsDto.order)
 			.where('workspace.id = :id', { id })
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
