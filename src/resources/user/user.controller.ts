@@ -18,6 +18,7 @@ import { Auth, ReqUser } from '@common/decorators';
 import { ROLE } from '@common/enums';
 import { PageOptionsDto } from '@common/pagination/PageOptionDto';
 import { Workspace } from '@resources/workspace/entities/workspace.entity';
+import { User } from './entities/user.entity';
 
 @Controller('user')
 export class UserController {
@@ -35,8 +36,9 @@ export class UserController {
 	}
 
 	@Get()
-	findAll(@Query() pageOptionsDto: PageOptionsDto) {
-		return this.userService.findAll(pageOptionsDto);
+	@Auth(ROLE.ADMIN, ROLE.SUPER_ADMIN)
+	findAll(@ReqUser() user: User, @Query() pageOptionsDto: PageOptionsDto) {
+		return this.userService.findAll(user, pageOptionsDto);
 	}
 
 	@Get(':id')

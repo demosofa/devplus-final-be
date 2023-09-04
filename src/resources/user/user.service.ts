@@ -15,6 +15,7 @@ import { RoleService } from '@resources/role/role.service';
 import { PageOptionsDto } from '@common/pagination/PageOptionDto';
 import { PageMetaDto } from '@common/pagination/PageMetaDto';
 import { PageDto } from '@common/pagination/Page.dto';
+import { ROLE } from '@common/enums';
 
 @Injectable()
 export class UserService implements IUserService {
@@ -49,15 +50,33 @@ export class UserService implements IUserService {
 		}
 	}
 
-	async findAll(pageOptionsDto: PageOptionsDto) {
+	async findAll(user: User, pageOptionsDto: PageOptionsDto) {
 		const queryBuilder = this.userRepos
 			.createQueryBuilder('user')
 			.orderBy('user.id', pageOptionsDto.order)
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
 
+		if (user.role.name == ROLE.SUPER_ADMIN) {
+			queryBuilder.andWhere('user.roleId != :superAdminRoleId', {
+				superAdminRoleId: user.role.id,
+			});
+		}
+
+		if (user.role.name == ROLE.ADMIN) {
+			queryBuilder
+				.andWhere('user.roleId != :adminRoleId', {
+					adminRoleId: user.role.id,
+				})
+				.andWhere('user.workspaceId = :workspaceId', {
+					workspaceId: user.workspace.id,
+				});
+		}
+
 		const itemCount = await queryBuilder.getCount();
 		const { entities } = await queryBuilder.getRawAndEntities();
+
+		console.log(entities, 'aaaaaaaa');
 
 		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
