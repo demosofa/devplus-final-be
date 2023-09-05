@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCvDto {
@@ -19,11 +20,6 @@ export class CreateCvDto {
 	file: string;
 
 	@IsNotEmpty()
-	create_at: Date;
-
-	@IsNotEmpty()
-	status: string;
-
-	@IsNotEmpty()
+	@Type(() => Number)
 	campaignId: number;
 }
