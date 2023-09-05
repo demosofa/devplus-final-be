@@ -23,7 +23,8 @@ export const multerDiskConfig = registerAs(
 		}),
 
 		fileFilter(req, file, callback) {
-			if (file.mimetype.match(/jpeg|jpg|png|gif|webp/)) callback(null, true);
+			if (file.mimetype.match(/jpeg|jpg|png|gif|webp|pdf/))
+				callback(null, true);
 			else
 				callback(
 					new HttpException(

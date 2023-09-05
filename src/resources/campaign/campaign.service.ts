@@ -29,12 +29,9 @@ export class CampaignService {
 
 	async create(user: User, createCampaignDto: CreateCampaignDto) {
 		try {
-			const { workspaceId, ...campaignDto } = createCampaignDto;
-			const workspace = await this.workspaceService.findOne(workspaceId);
-
 			const campaign = this.campaignRepos.create({
-				...campaignDto,
-				workspace,
+				...createCampaignDto,
+				workspace: user.workspace,
 				user,
 			});
 			const savedCampaign = await this.campaignRepos.save(campaign);
