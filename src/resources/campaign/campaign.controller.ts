@@ -21,7 +21,7 @@ export class CampaignController {
 	constructor(private readonly campaignService: CampaignService) {}
 
 	@Post()
-	// @Auth(ROLE.ADMIN)
+	@Auth(ROLE.ADMIN, ROLE.HR)
 	create(@ReqUser() user: User, @Body() createCampaignDto: CreateCampaignDto) {
 		return this.campaignService.create(user, createCampaignDto);
 	}
