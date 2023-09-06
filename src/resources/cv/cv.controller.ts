@@ -10,11 +10,13 @@ import {
 	UploadedFile,
 	UseInterceptors,
 } from '@nestjs/common';
-import { CV_STATUS } from '../../common/enums/cv-status';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { SearchCvDto } from './dto/search-cv.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Auth } from '@common/decorators';
+import { ROLE, CV_STATUS } from '@common/enums';
 
 @Controller('cv')
 export class CvController {
@@ -31,11 +33,13 @@ export class CvController {
 	}
 
 	@Get()
+	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN)
 	findAll(@Query() searchCvDto: SearchCvDto) {
 		return this.cvService.findAll(searchCvDto);
 	}
 
 	@Get(':id')
+	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN)
 	findOne(@Param('id') id: string) {
 		return this.cvService.findOne(+id);
 	}
@@ -46,7 +50,7 @@ export class CvController {
 	}
 
 	@Patch('pass/:id')
-	// @Auth(ROLE.ADMIN)
+	@Auth(ROLE.ADMIN)
 	pass(@Param('id') id: string) {
 		return this.cvService.update(+id, {
 			status: CV_STATUS.PASS,
@@ -54,6 +58,7 @@ export class CvController {
 	}
 
 	@Patch('fail/:id')
+	@Auth(ROLE.ADMIN)
 	fail(@Param('id') id: string) {
 		return this.cvService.updateFail(+id, {
 			status: CV_STATUS.FAIL,

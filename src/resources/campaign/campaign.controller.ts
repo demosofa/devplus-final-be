@@ -8,10 +8,11 @@ import {
 	Delete,
 	Query,
 } from '@nestjs/common';
+
 import { CampaignService } from './campaign.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
-import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
+import { PageOptionsDto } from '@common/pagination/PageOptionDto';
 import { Auth, ReqUser } from '@common/decorators';
 import { User } from '@resources/user/entities/user.entity';
 import { ROLE } from '@common/enums';
@@ -27,16 +28,19 @@ export class CampaignController {
 	}
 
 	@Get()
+	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN, ROLE.HR)
 	findAll(@Query() pageOptionsDto: PageOptionsDto) {
 		return this.campaignService.findAll(pageOptionsDto);
 	}
 
 	@Get(':id')
+	@Auth(ROLE.ADMIN, ROLE.HR)
 	findOne(@Param('id') id: string) {
 		return this.campaignService.findOne(+id);
 	}
 
 	@Patch(':id')
+	@Auth(ROLE.ADMIN, ROLE.HR)
 	update(
 		@Param('id') id: string,
 		@Body() updateCampaignDto: UpdateCampaignDto
@@ -45,6 +49,7 @@ export class CampaignController {
 	}
 
 	@Delete(':id')
+	@Auth(ROLE.ADMIN, ROLE.HR)
 	remove(@Param('id') id: string) {
 		return this.campaignService.remove(+id);
 	}

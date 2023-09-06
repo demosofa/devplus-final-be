@@ -76,8 +76,6 @@ export class UserService implements IUserService {
 		const itemCount = await queryBuilder.getCount();
 		const { entities } = await queryBuilder.getRawAndEntities();
 
-		console.log(entities, 'aaaaaaaa');
-
 		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
 		return new PageDto(entities, pageMetaDto);
