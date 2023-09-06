@@ -36,18 +36,19 @@ export class UserController {
 	}
 
 	@Get()
-	@Auth(ROLE.ADMIN, ROLE.SUPER_ADMIN)
+	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN)
 	findAll(@ReqUser() user: User, @Query() pageOptionsDto: PageOptionsDto) {
 		return this.userService.findAll(user, pageOptionsDto);
 	}
 
 	@Get(':id')
+	@UseGuards(AuthGuard)
 	findById(@Param('id') id: number) {
 		return this.userService.findById(id);
 	}
 
 	@Patch(':id')
-	@UseGuards(AuthGuard)
+	@Auth(ROLE.ADMIN)
 	update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
 		return this.userService.update(id, updateUserDto);
 	}
