@@ -34,7 +34,7 @@ export class CampaignController {
 	}
 
 	@Get(':id')
-	@Auth(ROLE.ADMIN, ROLE.HR)
+	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN, ROLE.HR)
 	findOne(@Param('id') id: string) {
 		return this.campaignService.findOne(+id);
 	}
