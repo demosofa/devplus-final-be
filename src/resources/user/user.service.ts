@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { hash } from 'bcrypt';
 
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto, SearchUserDto } from './dto';
 import { IUserService } from './user.interface';
 import { User } from './entities/user.entity';
 import { RoleService } from '@resources/role/role.service';
@@ -50,21 +50,21 @@ export class UserService implements IUserService {
 		}
 	}
 
-	async findAll(user: User, pageOptionsDto: PageOptionsDto) {
-		const queryBuilder = this.userRepos
+	async findAll(user: User, searchUserDto: SearchUserDto) {
+		const findUser = this.userRepos
 			.createQueryBuilder('user')
-			.orderBy('user.id', pageOptionsDto.order)
-			.skip(pageOptionsDto.skip)
-			.take(pageOptionsDto.take);
+			.orderBy('user.id', searchUserDto.order)
+			.skip(searchUserDto.skip)
+			.take(searchUserDto.take);
 
 		if (user.role.name == ROLE.SUPER_ADMIN) {
-			queryBuilder.andWhere('user.roleId != :superAdminRoleId', {
+			findUser.andWhere('user.roleId != :superAdminRoleId', {
 				superAdminRoleId: user.role.id,
 			});
 		}
 
 		if (user.role.name == ROLE.ADMIN) {
-			queryBuilder
+			findUser
 				.andWhere('user.roleId != :adminRoleId', {
 					adminRoleId: user.role.id,
 				})
@@ -73,10 +73,22 @@ export class UserService implements IUserService {
 				});
 		}
 
-		const itemCount = await queryBuilder.getCount();
-		const { entities } = await queryBuilder.getRawAndEntities();
+		if (searchUserDto.search) {
+			findUser.andWhere('(LOWER(user.name) ILIKE  LOWER(:search))', {
+				search: `%${searchUserDto.search}%`,
+			});
+			findUser.andWhere('user.name ILIKE  :userName', {
+				userName: `%${searchUserDto.search}%`,
+			});
+		}
 
-		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+		const itemCount = await findUser.getCount();
+		const { entities } = await findUser.getRawAndEntities();
+
+		const pageMetaDto = new PageMetaDto({
+			itemCount,
+			pageOptionsDto: searchUserDto as PageOptionsDto,
+		});
 
 		return new PageDto(entities, pageMetaDto);
 	}

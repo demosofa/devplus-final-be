@@ -2,7 +2,7 @@ import { PageOptionsDto } from '@common/pagination/PageOptionDto';
 import { Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
-export class SearchCvDto extends PageOptionsDto {
+export class SearchUserDto extends PageOptionsDto {
 	@Type(() => String)
 	@IsOptional()
 	readonly search?: string;

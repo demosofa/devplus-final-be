@@ -1,24 +1,24 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
+	Controller,
 	Delete,
+	Get,
 	Param,
-	UseGuards,
+	Patch,
+	Post,
 	Query,
+	UseGuards,
 } from '@nestjs/common';
 
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthGuard } from '@common/guards';
 import { Auth, ReqUser } from '@common/decorators';
 import { ROLE } from '@common/enums';
-import { PageOptionsDto } from '@common/pagination/PageOptionDto';
+import { AuthGuard } from '@common/guards';
 import { Workspace } from '@resources/workspace/entities/workspace.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { SearchUserDto } from './dto/search-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
@@ -37,8 +37,8 @@ export class UserController {
 
 	@Get()
 	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN)
-	findAll(@ReqUser() user: User, @Query() pageOptionsDto: PageOptionsDto) {
-		return this.userService.findAll(user, pageOptionsDto);
+	findAll(@ReqUser() user: User, @Query() searchUserDto: SearchUserDto) {
+		return this.userService.findAll(user, searchUserDto);
 	}
 
 	@Get(':id')
