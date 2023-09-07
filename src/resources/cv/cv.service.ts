@@ -57,8 +57,11 @@ export class CvService {
 			.take(searchCvDto.take);
 
 		if (searchCvDto.search) {
-			findCv.andWhere('(LOWER(campaign.name) LIKE LOWER(:search))', {
+			findCv.andWhere('(LOWER(campaign.name) ILIKE  LOWER(:search))', {
 				search: `%${searchCvDto.search}%`,
+			});
+			findCv.andWhere('campaign.name ILIKE  :campaignName', {
+				campaignName: `%${searchCvDto.search}%`,
 			});
 		}
 
