@@ -17,6 +17,7 @@ import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
 import { PageMetaDto } from '../../common/pagination/PageMetaDto';
 import { PageDto } from '../../common/pagination/Page.dto';
 import { User } from '@resources/user/entities/user.entity';
+import { ROLE } from '@common/enums';
 
 @Injectable()
 export class CampaignService {
@@ -44,13 +45,19 @@ export class CampaignService {
 		}
 	}
 
-	async findAll(pageOptionsDto: PageOptionsDto) {
+	async findAll(user: User, pageOptionsDto: PageOptionsDto) {
 		const queryBuilder = this.campaignRepos
 			.createQueryBuilder('campaign')
 			.leftJoinAndSelect('campaign.workspace', 'workspace')
 			.orderBy('campaign.id', pageOptionsDto.order)
 			.skip(pageOptionsDto.skip)
 			.take(pageOptionsDto.take);
+
+		if (user.role.name === ROLE.ADMIN || user.role.name === ROLE.HR) {
+			queryBuilder.where('workspace.id = :workspaceId', {
+				workspaceId: user.workspace.id,
+			});
+		}
 
 		const itemCount = await queryBuilder.getCount();
 		const { entities } = await queryBuilder.getRawAndEntities();

@@ -29,13 +29,18 @@ export class CampaignController {
 
 	@Get()
 	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN, ROLE.HR)
-	findAll(@Query() pageOptionsDto: PageOptionsDto) {
-		return this.campaignService.findAll(pageOptionsDto);
+	findAll(@ReqUser() user: User, @Query() pageOptionsDto: PageOptionsDto) {
+		return this.campaignService.findAll(user, pageOptionsDto);
 	}
 
 	@Get(':id')
 	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN, ROLE.HR)
 	findOne(@Param('id') id: string) {
+		return this.campaignService.findOne(+id);
+	}
+
+	@Get('/apply-cv/:id')
+	findApplyCv(@Param('id') id: string) {
 		return this.campaignService.findOne(+id);
 	}
 
