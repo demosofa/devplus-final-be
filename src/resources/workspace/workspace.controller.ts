@@ -39,7 +39,7 @@ export class WorkspaceController {
 	}
 
 	@Get(':id/campaign')
-	@Auth(ROLE.SUPER_ADMIN)
+	@Auth(ROLE.ADMIN, ROLE.HR)
 	findAllCampaign(
 		@Param('id') id: string,
 		@Query() pageOptionsDto: PageOptionsDto
@@ -69,4 +69,9 @@ export class WorkspaceController {
 	reject(@Param('id') id: string) {
 		return this.workspaceService.remove(+id);
 	}
+
+	// @Get('')
+	// findCvDashboard(@Param('id') id: string) {
+	// 	return this.campaignService.findCvByDashboard(+id);
+	// }
 }
