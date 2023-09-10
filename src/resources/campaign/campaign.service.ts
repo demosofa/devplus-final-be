@@ -111,7 +111,7 @@ export class CampaignService {
 		await this.campaignRepos.remove(campaign);
 	}
 
-	async findCvByDashboard(id: number) {
+	async campaignDashboard(id: number) {
 		const CvCountByMonth = await this.campaignRepos
 			.createQueryBuilder('campaign')
 			.leftJoinAndSelect('campaign.cv', 'cv')

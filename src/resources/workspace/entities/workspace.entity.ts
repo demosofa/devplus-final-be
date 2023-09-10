@@ -18,6 +18,12 @@ export class Workspace {
 	@Column({ unique: true })
 	title_workspace: string;
 
+	@CreateDateColumn()
+	create_at: Date;
+
+	@UpdateDateColumn()
+	update_at: Date;
+
 	@Column({ default: WORKSPACE_STATUS.PENDING })
 	status: string;
 

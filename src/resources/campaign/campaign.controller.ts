@@ -59,8 +59,8 @@ export class CampaignController {
 		return this.campaignService.remove(+id);
 	}
 
-	@Get('chart-campaign/:id')
-	findCvDashboard(@Param('id') id: string) {
-		return this.campaignService.findCvByDashboard(+id);
+	@Get('campaign-dashboard/:id')
+	campaignDashboard(@Param('id') id: string) {
+		return this.campaignService.campaignDashboard(+id);
 	}
 }

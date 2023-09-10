@@ -27,6 +27,12 @@ export class Campaign extends BaseEntity {
 	@Column()
 	expired_time: Date;
 
+	@CreateDateColumn()
+	create_at: Date;
+
+	@UpdateDateColumn()
+	update_at: Date;
+
 	@Column({ default: CAMPAIGN_STATUS.ACTIVE, enum: CAMPAIGN_STATUS })
 	status: CAMPAIGN_STATUS;
 
