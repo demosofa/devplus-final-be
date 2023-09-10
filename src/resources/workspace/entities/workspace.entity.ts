@@ -1,7 +1,14 @@
 import { WORKSPACE_STATUS } from '@common/enums/workspace-status';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
 import { User } from '@resources/user/entities/user.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	OneToMany,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Workspace {
@@ -24,4 +31,10 @@ export class Workspace {
 		onDelete: 'CASCADE',
 	})
 	user: User[];
+
+	@CreateDateColumn()
+	created_at: Date;
+
+	@UpdateDateColumn()
+	updated_at: Date;
 }

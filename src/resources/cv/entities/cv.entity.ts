@@ -7,6 +7,7 @@ import {
 	Entity,
 	ManyToOne,
 	PrimaryGeneratedColumn,
+	UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -29,12 +30,15 @@ export class Cv extends BaseEntity {
 	@Column()
 	file: string;
 
-	@CreateDateColumn()
-	create_at: Date;
-
 	@Column({ default: CV_STATUS.NEW })
 	status: string;
 
 	@ManyToOne(() => Campaign, (campaign) => campaign.cv)
 	campaign: Campaign;
+
+	@CreateDateColumn()
+	create_at: Date;
+
+	@UpdateDateColumn()
+	updated_at: Date;
 }

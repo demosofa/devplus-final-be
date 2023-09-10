@@ -28,5 +28,5 @@ export class Role extends BaseEntity {
 	createdAt: Date;
 
 	@UpdateDateColumn()
-	updatedAt: Date;
+	updated_at: Date;
 }

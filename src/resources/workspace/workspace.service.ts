@@ -10,14 +10,13 @@ import { hash } from 'bcrypt';
 
 import { Role } from '@resources/role/entities/role.entity';
 import { User } from '@resources/user/entities/user.entity';
-import { PageDto } from '../../common/pagination/Page.dto';
-import { PageMetaDto } from '../../common/pagination/PageMetaDto';
-import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
+import { PageOptionsDto } from '../../common/pagination/PageOptions.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { Workspace } from './entities/workspace.entity';
 import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
+import { pagination } from '@common/pagination';
 
 @Injectable()
 export class WorkspaceService {
@@ -75,17 +74,11 @@ export class WorkspaceService {
 	async findAll(pageOptionsDto: PageOptionsDto) {
 		const queryBuilder = this.workspaceRepos
 			.createQueryBuilder('workspace')
-			.orderBy('workspace.id', pageOptionsDto.order)
-			.skip(pageOptionsDto.skip)
-			.take(pageOptionsDto.take);
+			.orderBy('workspace.id', pageOptionsDto.order);
 
-		const itemCount = await queryBuilder.getCount();
-		const { entities } = await queryBuilder.getRawAndEntities();
-
-		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
-
-		return new PageDto(entities, pageMetaDto);
+		return pagination(queryBuilder, pageOptionsDto);
 	}
+
 	async findOne(id: number) {
 		const isExist = await this.workspaceRepos.findOne({
 			where: { id },
@@ -106,19 +99,9 @@ export class WorkspaceService {
 			])
 			.innerJoin('campaign.workspace', 'workspace')
 			.orderBy('campaign.id', pageOptionsDto.order)
-			.where('workspace.id = :id', { id })
-			.skip(pageOptionsDto.skip)
-			.take(pageOptionsDto.take);
+			.where('workspace.id = :id', { id });
 
-		const campaignCount = await campaignQueryBuilder.getCount();
-		const { entities } = await campaignQueryBuilder.getRawAndEntities();
-
-		const pageMetaDto = new PageMetaDto({
-			itemCount: campaignCount,
-			pageOptionsDto,
-		});
-
-		return new PageDto(entities, pageMetaDto);
+		return pagination(campaignQueryBuilder, pageOptionsDto);
 	}
 
 	async findAllUser(id: number, pageOptionsDto: PageOptionsDto) {
@@ -133,19 +116,9 @@ export class WorkspaceService {
 			])
 			.innerJoin('user.workspace', 'workspace')
 			.orderBy('user.name', pageOptionsDto.order)
-			.where('workspace.id = :id', { id })
-			.skip(pageOptionsDto.skip)
-			.take(pageOptionsDto.take);
+			.where('workspace.id = :id', { id });
 
-		const userCount = await userQueryBuilder.getCount();
-		const { entities } = await userQueryBuilder.getRawAndEntities();
-
-		const pageMetaDto = new PageMetaDto({
-			itemCount: userCount,
-			pageOptionsDto,
-		});
-
-		return new PageDto(entities, pageMetaDto);
+		return pagination(userQueryBuilder, pageOptionsDto);
 	}
 
 	async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto) {

@@ -1,4 +1,4 @@
-import { QueryBuilder, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
 	BadRequestException,
@@ -7,31 +7,25 @@ import {
 } from '@nestjs/common';
 import { unlinkSync } from 'fs';
 
-import { PageDto } from '@common/pagination/Page.dto';
-import { PageMetaDto } from '@common/pagination/PageMetaDto';
-import { PageOptionsDto } from '@common/pagination/PageOptionDto';
-import { Role } from '../role/entities/role.entity';
-import { User } from '../user/entities/user.entity';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { SearchCvDto } from './dto/search-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { Cv } from './entities/cv.entity';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
+import { pagination } from '@common/pagination';
 
 @Injectable()
 export class CvService {
 	constructor(
 		@InjectRepository(Cv)
 		private readonly cvRepos: Repository<Cv>,
-		@InjectRepository(User)
-		private readonly userRepos: Repository<User>,
-		@InjectRepository(Role)
-		private readonly roleRepos: Repository<Role>
+		@InjectRepository(Campaign)
+		private readonly campaignRepos: Repository<Campaign>
 	) {}
 
 	async create(createCvDto: CreateCvDto) {
 		try {
-			const campaign = await Campaign.findOneBy({
+			const campaign = await this.campaignRepos.findOneBy({
 				id: createCvDto.campaignId,
 			});
 			const cv = this.cvRepos.create(createCvDto);
@@ -52,9 +46,7 @@ export class CvService {
 		const findCv = this.cvRepos
 			.createQueryBuilder('cv')
 			.leftJoinAndSelect('cv.campaign', 'campaign')
-			.orderBy('cv.id', searchCvDto.order)
-			.skip(searchCvDto.skip)
-			.take(searchCvDto.take);
+			.orderBy('cv.id', searchCvDto.order);
 
 		if (searchCvDto.search) {
 			findCv.andWhere('(LOWER(campaign.name) ILIKE  LOWER(:search))', {
@@ -65,15 +57,7 @@ export class CvService {
 			});
 		}
 
-		const itemCount = await findCv.getCount();
-		const { entities } = await findCv.getRawAndEntities();
-
-		const pageMetaDto = new PageMetaDto({
-			itemCount,
-			pageOptionsDto: searchCvDto as PageOptionsDto,
-		});
-
-		return new PageDto(entities, pageMetaDto);
+		return pagination(findCv, searchCvDto);
 	}
 
 	async findOne(id: number) {
