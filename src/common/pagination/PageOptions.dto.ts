@@ -1,24 +1,28 @@
 import { Order } from '@common/enums/order';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class PageOptionsDto {
+	@IsString()
+	@IsOptional()
+	orderBy?: string;
+
 	@IsEnum(Order)
 	@IsOptional()
-	readonly order?: Order = Order.ASC;
+	order?: Order = Order.ASC;
 
 	@Type(() => Number)
 	@IsInt()
 	@Min(1)
 	@IsOptional()
-	readonly page?: number = 1;
+	page?: number = 1;
 
 	@Type(() => Number)
 	@IsInt()
 	@Min(1)
 	@Max(50)
 	@IsOptional()
-	readonly take?: number = 5;
+	take?: number = 5;
 
 	get skip(): number {
 		return (this.page - 1) * this.take;

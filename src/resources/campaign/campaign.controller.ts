@@ -12,7 +12,7 @@ import {
 import { CampaignService } from './campaign.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
-import { PageOptionsDto } from '@common/pagination/PageOptionDto';
+import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { Auth, ReqUser } from '@common/decorators';
 import { User } from '@resources/user/entities/user.entity';
 import { ROLE } from '@common/enums';

@@ -11,21 +11,18 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { Campaign } from './entities/campaign.entity';
-import { WorkspaceService } from '@resources/workspace/workspace.service';
 import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
-import { PageOptionsDto } from '../../common/pagination/PageOptionDto';
-import { PageMetaDto } from '../../common/pagination/PageMetaDto';
-import { PageDto } from '../../common/pagination/Page.dto';
+import { PageOptionsDto } from '../../common/pagination/PageOptions.dto';
 import { User } from '@resources/user/entities/user.entity';
 import { ROLE } from '@common/enums';
+import { pagination } from '@common/pagination';
 
 @Injectable()
 export class CampaignService {
 	constructor(
 		@InjectRepository(Campaign)
 		private readonly campaignRepos: Repository<Campaign>,
-		private readonly schedulerRegistry: SchedulerRegistry,
-		private readonly workspaceService: WorkspaceService
+		private readonly schedulerRegistry: SchedulerRegistry
 	) {}
 
 	async create(user: User, createCampaignDto: CreateCampaignDto) {
@@ -49,9 +46,7 @@ export class CampaignService {
 		const queryBuilder = this.campaignRepos
 			.createQueryBuilder('campaign')
 			.leftJoinAndSelect('campaign.workspace', 'workspace')
-			.orderBy('campaign.id', pageOptionsDto.order)
-			.skip(pageOptionsDto.skip)
-			.take(pageOptionsDto.take);
+			.orderBy('campaign.id', pageOptionsDto.order);
 
 		if (user.role.name === ROLE.ADMIN || user.role.name === ROLE.HR) {
 			queryBuilder.where('workspace.id = :workspaceId', {
@@ -59,12 +54,7 @@ export class CampaignService {
 			});
 		}
 
-		const itemCount = await queryBuilder.getCount();
-		const { entities } = await queryBuilder.getRawAndEntities();
-
-		const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
-
-		return new PageDto(entities, pageMetaDto);
+		return pagination(queryBuilder, pageOptionsDto);
 	}
 
 	async findOne(id: number) {

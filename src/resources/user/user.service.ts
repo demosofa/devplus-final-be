@@ -12,10 +12,8 @@ import { CreateUserDto, UpdateUserDto, SearchUserDto } from './dto';
 import { IUserService } from './user.interface';
 import { User } from './entities/user.entity';
 import { RoleService } from '@resources/role/role.service';
-import { PageOptionsDto } from '@common/pagination/PageOptionDto';
-import { PageMetaDto } from '@common/pagination/PageMetaDto';
-import { PageDto } from '@common/pagination/Page.dto';
 import { ROLE } from '@common/enums';
+import { pagination } from '@common/pagination';
 
 @Injectable()
 export class UserService implements IUserService {
@@ -53,9 +51,7 @@ export class UserService implements IUserService {
 	async findAll(user: User, searchUserDto: SearchUserDto) {
 		const findUser = this.userRepos
 			.createQueryBuilder('user')
-			.orderBy('user.id', searchUserDto.order)
-			.skip(searchUserDto.skip)
-			.take(searchUserDto.take);
+			.orderBy('user.id', searchUserDto.order);
 
 		if (user.role.name == ROLE.SUPER_ADMIN) {
 			findUser.andWhere('user.roleId != :superAdminRoleId', {
@@ -82,15 +78,7 @@ export class UserService implements IUserService {
 			});
 		}
 
-		const itemCount = await findUser.getCount();
-		const { entities } = await findUser.getRawAndEntities();
-
-		const pageMetaDto = new PageMetaDto({
-			itemCount,
-			pageOptionsDto: searchUserDto as PageOptionsDto,
-		});
-
-		return new PageDto(entities, pageMetaDto);
+		return pagination(findUser, searchUserDto);
 	}
 
 	async findById(id: number) {

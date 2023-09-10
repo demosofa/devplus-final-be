@@ -1,4 +1,4 @@
-import { PageOptionsDto } from '@common/pagination/PageOptionDto';
+import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 

@@ -5,10 +5,12 @@ import { Workspace } from '@resources/workspace/entities/workspace.entity';
 import {
 	BaseEntity,
 	Column,
+	CreateDateColumn,
 	Entity,
 	ManyToOne,
 	OneToMany,
 	PrimaryGeneratedColumn,
+	UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -36,4 +38,10 @@ export class Campaign extends BaseEntity {
 
 	@OneToMany(() => Cv, (cv) => cv.campaign)
 	cv: Cv[];
+
+	@CreateDateColumn()
+	created_at: Date;
+
+	@UpdateDateColumn()
+	updated_at: Date;
 }
