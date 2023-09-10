@@ -120,4 +120,17 @@ export class CampaignService {
 
 		await this.campaignRepos.remove(campaign);
 	}
+
+	async findCvByDashboard(id: number) {
+		const CvCountByMonth = await this.campaignRepos
+			.createQueryBuilder('campaign')
+			.leftJoinAndSelect('campaign.cv', 'cv')
+			.select("DATE_TRUNC('month', cv.create_at) AS month, COUNT(*) AS count")
+			.where('campaign.id = :id', { id })
+			.andWhere('cv.create_at IS NOT NULL')
+			.groupBy('month')
+			.getRawMany();
+
+		return CvCountByMonth;
+	}
 }

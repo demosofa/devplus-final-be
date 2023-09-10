@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { QueryBuilder, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
 	BadRequestException,
@@ -107,6 +107,17 @@ export class CvService {
 			...oldCV,
 			...updateCvDto,
 		});
+	}
+
+	async findCvByDashboard() {
+		const CvMonth = await this.cvRepos
+			.createQueryBuilder('cv')
+			.select("DATE_TRUNC('month', cv.create_at) AS month, COUNT(*) AS count")
+			.where('cv.create_at IS NOT NULL')
+			.groupBy('month')
+			.getRawMany();
+
+		return CvMonth;
 	}
 
 	remove(id: number) {
