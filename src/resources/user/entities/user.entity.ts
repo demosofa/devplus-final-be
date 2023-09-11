@@ -53,7 +53,7 @@ export class User extends BaseEntity {
 	role: Role;
 
 	@CreateDateColumn()
-	createdAt: Date;
+	created_at: Date;
 
 	@UpdateDateColumn()
 	updated_at: Date;

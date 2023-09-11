@@ -15,8 +15,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { SearchCvDto } from './dto/search-cv.dto';
-import { Auth } from '@common/decorators';
+import { Auth, ReqUser } from '@common/decorators';
 import { ROLE, CV_STATUS } from '@common/enums';
+import { User } from '@resources/user/entities/user.entity';
 
 @Controller('cv')
 export class CvController {
@@ -34,8 +35,8 @@ export class CvController {
 
 	@Get()
 	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN)
-	findAll(@Query() searchCvDto: SearchCvDto) {
-		return this.cvService.findAll(searchCvDto);
+	findAll(@ReqUser() user: User, @Query() searchCvDto: SearchCvDto) {
+		return this.cvService.findAll(user, searchCvDto);
 	}
 
 	@Get(':id')

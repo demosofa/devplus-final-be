@@ -37,7 +37,7 @@ export class Cv extends BaseEntity {
 	campaign: Campaign;
 
 	@CreateDateColumn()
-	create_at: Date;
+	created_at: Date;
 
 	@UpdateDateColumn()
 	updated_at: Date;

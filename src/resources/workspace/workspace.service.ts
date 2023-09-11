@@ -10,7 +10,7 @@ import { hash } from 'bcrypt';
 
 import { Role } from '@resources/role/entities/role.entity';
 import { User } from '@resources/user/entities/user.entity';
-import { PageOptionsDto } from '../../common/pagination/PageOptions.dto';
+import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { Workspace } from './entities/workspace.entity';

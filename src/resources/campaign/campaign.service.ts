@@ -12,7 +12,7 @@ import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { Campaign } from './entities/campaign.entity';
 import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
-import { PageOptionsDto } from '../../common/pagination/PageOptions.dto';
+import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { User } from '@resources/user/entities/user.entity';
 import { ROLE } from '@common/enums';
 import { pagination } from '@common/pagination';
@@ -115,9 +115,9 @@ export class CampaignService {
 		const CvCountByMonth = await this.campaignRepos
 			.createQueryBuilder('campaign')
 			.leftJoinAndSelect('campaign.cv', 'cv')
-			.select("DATE_TRUNC('month', cv.create_at) AS month, COUNT(*) AS count")
+			.select("DATE_TRUNC('month', cv.created_at) AS month, COUNT(*) AS count")
 			.where('campaign.id = :id', { id })
-			.andWhere('cv.create_at IS NOT NULL')
+			.andWhere('cv.created_at IS NOT NULL')
 			.groupBy('month')
 			.getRawMany();
 
