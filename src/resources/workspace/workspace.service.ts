@@ -172,19 +172,4 @@ export class WorkspaceService {
 
 		await this.workspaceRepos.remove(workspace);
 	}
-
-	async workspaceDashboard(id: number) {
-		const CampaignCountByMonth = await this.workspaceRepos
-			.createQueryBuilder('workspace')
-			.leftJoinAndSelect('workspace.campaign', 'campaign')
-			.select(
-				"DATE_TRUNC('month', campaign.create_at) AS month, COUNT(*) AS count"
-			)
-			.where('workspace.id = :id', { id })
-			.andWhere('campaign.create_at IS NOT NULL')
-			.groupBy('month')
-			.getRawMany();
-
-		return CampaignCountByMonth;
-	}
 }

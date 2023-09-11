@@ -68,9 +68,4 @@ export class WorkspaceController {
 	reject(@Param('id') id: string) {
 		return this.workspaceService.remove(+id);
 	}
-
-	@Get('workspace-dashboard/:id')
-	workspaceDashboard(@Param('id') id: string) {
-		return this.workspaceService.workspaceDashboard(+id);
-	}
 }
