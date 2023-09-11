@@ -111,16 +111,40 @@ export class CampaignService {
 		await this.campaignRepos.remove(campaign);
 	}
 
-	async findCvByDashboard(id: number) {
-		const CvCountByMonth = await this.campaignRepos
-			.createQueryBuilder('campaign')
-			.leftJoinAndSelect('campaign.cv', 'cv')
-			.select("DATE_TRUNC('month', cv.created_at) AS month, COUNT(*) AS count")
-			.where('campaign.id = :id', { id })
-			.andWhere('cv.created_at IS NOT NULL')
-			.groupBy('month')
-			.getRawMany();
+	async getCvCountByTimePeriod(
+		user: User,
+		filterTime: 'month' | 'week' | 'year'
+	) {
+		const startFilterDate = new Date();
 
-		return CvCountByMonth;
+		const cvCountByTimePeriod = this.campaignRepos
+			.createQueryBuilder('campaign')
+			.leftJoin('campaign.cv', 'cv')
+			.leftJoin('campaign.workspace', 'workspace')
+			.select([
+				'campaign.id as campaign_id',
+				'campaign.name AS campaign_name',
+				"TO_CHAR(cv.created_at, 'YYYY-MM-DD') AS date",
+			])
+			.addSelect('COUNT(cv.id) AS cv_counts')
+			.where('workspace.id = :adminWorkspaceId', {
+				adminWorkspaceId: user.workspace.id,
+			})
+			.groupBy('campaign_id')
+			.addGroupBy('date');
+
+		if (filterTime == 'year') {
+			startFilterDate.setDate(startFilterDate.getDate() - 365);
+		} else if (filterTime == 'month') {
+			startFilterDate.setDate(startFilterDate.getDate() - 30);
+		} else if (filterTime == 'week') {
+			startFilterDate.setDate(startFilterDate.getDate() - 7);
+		}
+
+		cvCountByTimePeriod.andWhere('cv.created_at >= :startFilterDate', {
+			startFilterDate,
+		});
+
+		return cvCountByTimePeriod.getRawMany();
 	}
 }

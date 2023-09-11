@@ -68,9 +68,4 @@ export class WorkspaceController {
 	reject(@Param('id') id: string) {
 		return this.workspaceService.remove(+id);
 	}
-
-	// @Get('')
-	// findCvDashboard(@Param('id') id: string) {
-	// 	return this.campaignService.findCvByDashboard(+id);
-	// }
 }

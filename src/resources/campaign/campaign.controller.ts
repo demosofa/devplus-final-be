@@ -33,6 +33,17 @@ export class CampaignController {
 		return this.campaignService.findAll(user, pageOptionsDto);
 	}
 
+	@Get('get-cv-count')
+	@Auth(ROLE.ADMIN)
+	getCvCountByTimePeriod(
+		@ReqUser() user: User,
+		@Query('filterTime') filterTime?: 'month' | 'week' | 'year'
+	) {
+		console.log(user.workspace.id);
+		if (!filterTime) filterTime = 'year';
+		return this.campaignService.getCvCountByTimePeriod(user, filterTime);
+	}
+
 	@Get(':id')
 	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN, ROLE.HR)
 	findOne(@Param('id') id: string) {
@@ -57,10 +68,5 @@ export class CampaignController {
 	@Auth(ROLE.ADMIN, ROLE.HR)
 	remove(@Param('id') id: string) {
 		return this.campaignService.remove(+id);
-	}
-
-	@Get('chart-campaign/:id')
-	findCvDashboard(@Param('id') id: string) {
-		return this.campaignService.findCvByDashboard(+id);
 	}
 }
