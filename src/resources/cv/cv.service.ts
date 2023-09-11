@@ -13,6 +13,8 @@ import { UpdateCvDto } from './dto/update-cv.dto';
 import { Cv } from './entities/cv.entity';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
 import { pagination } from '@common/pagination';
+import { User } from '@resources/user/entities/user.entity';
+import { ROLE } from '@common/enums';
 
 @Injectable()
 export class CvService {
@@ -42,11 +44,18 @@ export class CvService {
 		}
 	}
 
-	async findAll(searchCvDto: SearchCvDto) {
+	async findAll(user: User, searchCvDto: SearchCvDto) {
 		const findCv = this.cvRepos
 			.createQueryBuilder('cv')
 			.leftJoinAndSelect('cv.campaign', 'campaign')
+			.leftJoinAndSelect('campaign.workspace', 'workspace')
 			.orderBy('cv.id', searchCvDto.order);
+
+		if (user.role.name === ROLE.ADMIN || user.role.name === ROLE.HR) {
+			findCv.andWhere('workspace.id = :workspaceId', {
+				workspaceId: user.workspace.id,
+			});
+		}
 
 		if (searchCvDto.search) {
 			findCv.andWhere('(LOWER(campaign.name) ILIKE  LOWER(:search))', {
@@ -96,8 +105,8 @@ export class CvService {
 	async findCvByDashboard() {
 		const CvMonth = await this.cvRepos
 			.createQueryBuilder('cv')
-			.select("DATE_TRUNC('month', cv.create_at) AS month, COUNT(*) AS count")
-			.where('cv.create_at IS NOT NULL')
+			.select("DATE_TRUNC('month', cv.created_at) AS month, COUNT(*) AS count")
+			.where('cv.created_at IS NOT NULL')
 			.groupBy('month')
 			.getRawMany();
 

@@ -1,5 +1,5 @@
 import { IsEnum, IsOptional } from 'class-validator';
-import { CV_STATUS } from '../../../common/enums/cv-status';
+import { CV_STATUS } from '@common/enums/cv-status';
 
 export class UpdateCvDto {
 	@IsOptional()

@@ -9,9 +9,8 @@ import {
 	Query,
 } from '@nestjs/common';
 
-// import { Auth } from '../../common/decorators';
-import { ROLE, WORKSPACE_STATUS } from '../../common/enums';
-import { PageOptionsDto } from '../../common/pagination/PageOptions.dto';
+import { ROLE, WORKSPACE_STATUS } from '@common/enums';
+import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspaceService } from './workspace.service';
 import { Auth } from '@common/decorators';
