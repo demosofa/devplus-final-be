@@ -1,22 +1,17 @@
-# Base image
-FROM node:18.17-slim
+# 1. Build
+FROM node:16.18.0-alpine
 
-# Create app directory
-WORKDIR /devplus-app
+WORKDIR /app
+#
+COPY package.json /app/
+COPY yarn.lock /app/
 
-# A wildcard is used to ensure both package.json AND yarn.lock are copied
-COPY package.json yarn.lock ./
+RUN npm install
 
-# Install app dependencies using yarn
-RUN yarn install
+RUN apk update && apk upgrade && apk add --no-cache bash git
 
-# Bundle app source
 COPY . .
 
-# Creates a "dist" folder with the production build
-RUN yarn build
+RUN npm run build
 
-EXPOSE 3000
-
-# Start the server using the production build
-CMD [ "yarn", "start:prod" ]
+CMD [ "node", "dist/main.js" ]

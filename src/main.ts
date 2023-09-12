@@ -1,11 +1,11 @@
+import { DeleteInterceptor } from '@common/interceptors/delete.interceptor';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { DeleteInterceptor } from '@common/interceptors/delete.interceptor';
 import { join } from 'path';
-import { ConfigService } from '@nestjs/config';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -39,6 +39,6 @@ async function bootstrap() {
 		prefix: '/upload',
 	});
 
-	await app.listen(3000);
+	await app.listen(6002);
 }
 bootstrap();
