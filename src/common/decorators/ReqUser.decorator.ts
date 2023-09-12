@@ -1,8 +1,4 @@
-import {
-	ExecutionContext,
-	InternalServerErrorException,
-	createParamDecorator,
-} from '@nestjs/common';
+import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 
 import { AuthRequest } from '@common/types';
 import { User } from '@resources/user/entities/user.entity';
