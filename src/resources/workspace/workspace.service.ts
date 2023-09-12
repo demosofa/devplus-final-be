@@ -14,7 +14,12 @@ import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { Workspace } from './entities/workspace.entity';
-import { ROLE, USER_STATUS, WORKSPACE_STATUS } from '@common/enums';
+import {
+	FILTER_TIME,
+	ROLE,
+	USER_STATUS,
+	WORKSPACE_STATUS,
+} from '@common/enums';
 import { Campaign } from '@resources/campaign/entities/campaign.entity';
 import { pagination } from '@common/pagination';
 
@@ -169,5 +174,68 @@ export class WorkspaceService {
 		}
 
 		await this.workspaceRepos.remove(workspace);
+	}
+
+	async countCampaignByTimePeriod(filterTime: FILTER_TIME) {
+		const campaignCountByTimePeriod = this.workspaceRepos
+			.createQueryBuilder('workspace')
+			.leftJoin('workspace.campaign', 'campaign')
+			.select([
+				'workspace.id as workspace_id',
+				'workspace.title_workspace AS workspace_title',
+				"TO_CHAR(campaign.created_at, 'YYYY-MM-DD') AS date",
+			])
+			.addSelect('COUNT(campaign.id) AS campaign_counts')
+			.groupBy('workspace_id')
+			.addGroupBy('date');
+
+		const startFilterDate = new Date();
+
+		if (filterTime == FILTER_TIME.YEAR) {
+			startFilterDate.setDate(startFilterDate.getDate() - 365);
+		} else if (filterTime == FILTER_TIME.MONTH) {
+			startFilterDate.setDate(startFilterDate.getDate() - 30);
+		} else if (filterTime == FILTER_TIME.WEEK) {
+			startFilterDate.setDate(startFilterDate.getDate() - 7);
+		}
+
+		campaignCountByTimePeriod.andWhere(
+			'campaign.created_at >= :startFilterDate',
+			{
+				startFilterDate,
+			}
+		);
+
+		return campaignCountByTimePeriod.getRawMany();
+	}
+
+	async countUserByTimePeriod(filterTime: FILTER_TIME) {
+		const userCountByTimePeriod = this.workspaceRepos
+			.createQueryBuilder('workspace')
+			.leftJoin('workspace.user', 'user')
+			.select([
+				'workspace.id as workspace_id',
+				'workspace.title_workspace AS workspace_title',
+				"TO_CHAR(user.created_at, 'YYYY-MM-DD') AS date",
+			])
+			.addSelect('COUNT(user.id) AS user_counts')
+			.groupBy('workspace_id')
+			.addGroupBy('date');
+
+		const startFilterDate = new Date();
+
+		if (filterTime == FILTER_TIME.YEAR) {
+			startFilterDate.setDate(startFilterDate.getDate() - 365);
+		} else if (filterTime == FILTER_TIME.MONTH) {
+			startFilterDate.setDate(startFilterDate.getDate() - 30);
+		} else if (filterTime == FILTER_TIME.WEEK) {
+			startFilterDate.setDate(startFilterDate.getDate() - 7);
+		}
+
+		userCountByTimePeriod.andWhere('user.created_at >= :startFilterDate', {
+			startFilterDate,
+		});
+
+		return userCountByTimePeriod.getRawMany();
 	}
 }

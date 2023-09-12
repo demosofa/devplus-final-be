@@ -9,7 +9,7 @@ import {
 	Query,
 } from '@nestjs/common';
 
-import { ROLE, WORKSPACE_STATUS } from '@common/enums';
+import { FILTER_TIME, ROLE, WORKSPACE_STATUS } from '@common/enums';
 import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspaceService } from './workspace.service';
@@ -29,6 +29,20 @@ export class WorkspaceController {
 	@Auth(ROLE.SUPER_ADMIN)
 	findAll(@Query() pageOptionsDto: PageOptionsDto) {
 		return this.workspaceService.findAll(pageOptionsDto);
+	}
+
+	@Get('campaign-count')
+	@Auth(ROLE.SUPER_ADMIN)
+	countCampaignByTimePeriod(@Query('filterTime') filterTime?: FILTER_TIME) {
+		if (!filterTime) filterTime = FILTER_TIME.YEAR;
+		return this.workspaceService.countCampaignByTimePeriod(filterTime);
+	}
+
+	@Get('user-count')
+	@Auth(ROLE.SUPER_ADMIN)
+	countUserByTimePeriod(@Query('filterTime') filterTime?: FILTER_TIME) {
+		if (!filterTime) filterTime = FILTER_TIME.YEAR;
+		return this.workspaceService.countUserByTimePeriod(filterTime);
 	}
 
 	@Get(':id')

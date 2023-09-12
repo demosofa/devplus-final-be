@@ -14,7 +14,7 @@ import { Campaign } from './entities/campaign.entity';
 import { CAMPAIGN_STATUS } from '@common/enums/campaign-status';
 import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { User } from '@resources/user/entities/user.entity';
-import { ROLE } from '@common/enums';
+import { FILTER_TIME, ROLE } from '@common/enums';
 import { pagination } from '@common/pagination';
 
 @Injectable()
@@ -151,10 +151,7 @@ export class CampaignService {
 		}
 	}
 
-	async getCvCountByTimePeriod(
-		user: User,
-		filterTime: 'month' | 'week' | 'year'
-	) {
+	async getCvCountByTimePeriod(user: User, filterTime: FILTER_TIME) {
 		const startFilterDate = new Date();
 
 		const cvCountByTimePeriod = this.campaignRepos
@@ -173,11 +170,11 @@ export class CampaignService {
 			.groupBy('campaign_id')
 			.addGroupBy('date');
 
-		if (filterTime == 'year') {
+		if (filterTime == FILTER_TIME.YEAR) {
 			startFilterDate.setDate(startFilterDate.getDate() - 365);
-		} else if (filterTime == 'month') {
+		} else if (filterTime == FILTER_TIME.MONTH) {
 			startFilterDate.setDate(startFilterDate.getDate() - 30);
-		} else if (filterTime == 'week') {
+		} else if (filterTime == FILTER_TIME.WEEK) {
 			startFilterDate.setDate(startFilterDate.getDate() - 7);
 		}
 

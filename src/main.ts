@@ -39,6 +39,6 @@ async function bootstrap() {
 		prefix: '/upload',
 	});
 
-	await app.listen(6002);
+	await app.listen(3000);
 }
 bootstrap();
