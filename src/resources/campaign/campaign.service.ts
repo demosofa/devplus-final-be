@@ -26,6 +26,20 @@ export class CampaignService {
 	) {}
 
 	async create(user: User, createCampaignDto: CreateCampaignDto) {
+		const isExist = await this.campaignRepos.findOneBy({
+			name: createCampaignDto.name,
+			status: CAMPAIGN_STATUS.ACTIVE,
+			workspace: {
+				id: user.workspace.id,
+			},
+		});
+
+		if (isExist) {
+			throw new BadRequestException(
+				'There is already an active campaign by this name'
+			);
+		}
+
 		try {
 			const campaign = this.campaignRepos.create({
 				...createCampaignDto,
@@ -34,11 +48,11 @@ export class CampaignService {
 			});
 			const savedCampaign = await this.campaignRepos.save(campaign);
 
-			this.expire(savedCampaign.id, savedCampaign.expired_time);
+			this.setExpire(savedCampaign.id, savedCampaign.expired_time);
 
 			return savedCampaign;
 		} catch (error) {
-			throw new BadRequestException(error.message);
+			throw new InternalServerErrorException(error.message);
 		}
 	}
 
@@ -64,8 +78,24 @@ export class CampaignService {
 		return isExist;
 	}
 
-	async update(id: number, updateCampaignDto: UpdateCampaignDto) {
+	async update(user: User, id: number, updateCampaignDto: UpdateCampaignDto) {
 		const oldCampaign = await this.findOne(id);
+
+		if (updateCampaignDto.name && oldCampaign.name != updateCampaignDto.name) {
+			const isExist = await this.campaignRepos.findOneBy({
+				name: updateCampaignDto.name,
+				status: CAMPAIGN_STATUS.ACTIVE,
+				workspace: {
+					id: user.workspace.id,
+				},
+			});
+
+			if (isExist) {
+				throw new BadRequestException(
+					'There is already an active campaign by this name'
+				);
+			}
+		}
 
 		try {
 			const updatedCampaign = await this.campaignRepos.save({
@@ -73,7 +103,7 @@ export class CampaignService {
 				...updateCampaignDto,
 			});
 
-			this.expire(id, updateCampaignDto.expired_time);
+			this.setExpire(id, updateCampaignDto.expired_time);
 
 			return updatedCampaign;
 		} catch (error) {
@@ -81,19 +111,23 @@ export class CampaignService {
 		}
 	}
 
-	expire(id: number, at: string | Date) {
-		const timeOutName = 'campaign-expire' + id;
-		if (this.schedulerRegistry.getTimeouts().includes(timeOutName))
-			this.schedulerRegistry.deleteTimeout(timeOutName);
+	private setExpire(id: number, at: string | Date) {
+		this.removeExpire(id);
 
 		const milliseconds = new Date(at).getTime() - new Date().getTime();
 
 		const timeout = setTimeout(async () => {
 			await this.campaignRepos.update(id, { status: CAMPAIGN_STATUS.INACTIVE });
-			this.schedulerRegistry.deleteTimeout(timeOutName);
+			this.removeExpire(id);
 		}, milliseconds);
 
-		this.schedulerRegistry.addTimeout(timeOutName, timeout);
+		this.schedulerRegistry.addTimeout(id.toString(), timeout);
+	}
+
+	private removeExpire(id: number) {
+		if (this.schedulerRegistry.getTimeouts().includes(id.toString())) {
+			this.schedulerRegistry.deleteTimeout(id.toString());
+		}
 	}
 
 	async remove(id: number) {
@@ -108,7 +142,13 @@ export class CampaignService {
 			throw new NotFoundException(`Campaign with ID ${id} not found`);
 		}
 
-		await this.campaignRepos.remove(campaign);
+		try {
+			await this.campaignRepos.remove(campaign);
+
+			this.removeExpire(id);
+		} catch (error) {
+			throw new InternalServerErrorException(error.message);
+		}
 	}
 
 	async getCvCountByTimePeriod(

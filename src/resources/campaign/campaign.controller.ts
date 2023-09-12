@@ -58,10 +58,11 @@ export class CampaignController {
 	@Patch(':id')
 	@Auth(ROLE.ADMIN, ROLE.HR)
 	update(
+		@ReqUser() user: User,
 		@Param('id') id: string,
 		@Body() updateCampaignDto: UpdateCampaignDto
 	) {
-		return this.campaignService.update(+id, updateCampaignDto);
+		return this.campaignService.update(user, +id, updateCampaignDto);
 	}
 
 	@Delete(':id')

@@ -5,7 +5,7 @@ import {
 	InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { hash } from 'bcrypt';
 
 import { CreateUserDto, UpdateUserDto, SearchUserDto } from './dto';
@@ -92,11 +92,12 @@ export class UserService implements IUserService {
 		return user;
 	}
 
-	async findOne(email: string) {
+	async findOne(where: FindOptionsWhere<User> | FindOptionsWhere<User>[]) {
 		const user = await this.userRepos.findOne({
-			where: { email },
+			where,
 			relations: {
 				role: true,
+				workspace: true,
 			},
 		});
 		if (!user) throw new NotFoundException('Can not find the user');
