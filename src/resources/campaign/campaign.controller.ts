@@ -15,7 +15,7 @@ import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { PageOptionsDto } from '@common/pagination/PageOptions.dto';
 import { Auth, ReqUser } from '@common/decorators';
 import { User } from '@resources/user/entities/user.entity';
-import { ROLE } from '@common/enums';
+import { FILTER_TIME, ROLE } from '@common/enums';
 
 @Controller('campaign')
 export class CampaignController {
@@ -37,10 +37,9 @@ export class CampaignController {
 	@Auth(ROLE.ADMIN)
 	getCvCountByTimePeriod(
 		@ReqUser() user: User,
-		@Query('filterTime') filterTime?: 'month' | 'week' | 'year'
+		@Query('filterTime') filterTime?: FILTER_TIME
 	) {
-		console.log(user.workspace.id);
-		if (!filterTime) filterTime = 'year';
+		if (!filterTime) filterTime = FILTER_TIME.YEAR;
 		return this.campaignService.getCvCountByTimePeriod(user, filterTime);
 	}
 
