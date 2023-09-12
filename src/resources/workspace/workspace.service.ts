@@ -36,22 +36,22 @@ export class WorkspaceService {
 
 		if (isExist) throw new BadRequestException('Title is already exist!');
 
-		const workspace = this.workspaceRepos.create({ title_workspace });
-		try {
-			const isAdminExist = await this.userRepos.findOneBy({
-				email: createAdminDto.email,
-			});
-			if (isAdminExist)
-				throw new BadRequestException(
-					'There is already existed admin with this email'
-				);
+		const isAdminExist = await this.userRepos.findOneBy({
+			email: createAdminDto.email,
+		});
 
+		if (isAdminExist) {
+			throw new BadRequestException('There is already an user by this email');
+		}
+
+		try {
 			let role = await this.roleRepos.findOneBy({ name: ROLE.ADMIN });
 			if (!role) {
 				const roleAdmin = this.roleRepos.create({ name: ROLE.ADMIN });
 				role = await this.roleRepos.save(roleAdmin);
 			}
 
+			const workspace = this.workspaceRepos.create({ title_workspace });
 			const createdWorkspace = await this.workspaceRepos.save(workspace);
 
 			createAdminDto.password = await hash(createAdminDto.password, 10);
@@ -124,16 +124,14 @@ export class WorkspaceService {
 	async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto) {
 		const oldWorkspace = await this.findOne(id);
 
-		if (updateWorkspaceDto.title_workspace) {
-			if (oldWorkspace.title_workspace == updateWorkspaceDto.title_workspace) {
-				return oldWorkspace;
-			}
-
-			const isExist = await this.workspaceRepos.findOne({
-				where: {
-					title_workspace: updateWorkspaceDto.title_workspace,
-				},
+		if (
+			updateWorkspaceDto.title_workspace &&
+			oldWorkspace.title_workspace != updateWorkspaceDto.title_workspace
+		) {
+			const isExist = await this.workspaceRepos.findOneBy({
+				title_workspace: updateWorkspaceDto.title_workspace,
 			});
+
 			if (isExist) {
 				throw new BadRequestException('This workspace is already existed');
 			}
