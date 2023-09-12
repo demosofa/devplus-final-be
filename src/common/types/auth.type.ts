@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { ROLE, USER_STATUS } from '@common/enums';
+import { User } from '@resources/user/entities/user.entity';
 
 export type AuthToken = {
 	id: number;
@@ -10,5 +11,5 @@ export type AuthToken = {
 };
 
 export interface AuthRequest extends Request {
-	user: AuthToken;
+	user: User;
 }

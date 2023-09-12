@@ -21,8 +21,8 @@ export class AuthService implements IAuthService {
 
 		const { id, email, name, password, role, status } = user;
 
-		let boss: User;
 		if (status == USER_STATUS.DISABLE) {
+			let boss: User;
 			if (user.role.name == ROLE.ADMIN) {
 				boss = await this.userService.findOne({
 					role: {
