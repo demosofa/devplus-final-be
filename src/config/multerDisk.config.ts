@@ -23,9 +23,9 @@ export const multerDiskConfig = registerAs(
 		}),
 
 		fileFilter(req, file, callback) {
-			if (file.mimetype.match(/jpeg|jpg|png|gif|webp|pdf/))
+			if (file.mimetype.match(/pdf/)) {
 				callback(null, true);
-			else
+			} else
 				callback(
 					new HttpException(
 						`Unsupported file type ${extname(file.originalname)}`,
