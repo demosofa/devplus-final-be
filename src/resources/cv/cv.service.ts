@@ -122,4 +122,67 @@ export class CvService {
 	remove(id: number) {
 		return `This action removes a #${id} cv`;
 	}
+
+	async totalCv(user: User) {
+		if (user.role.name === ROLE.ADMIN) {
+			const pastYear = new Date();
+			pastYear.setFullYear(pastYear.getFullYear() - 1);
+			const oldYearCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.leftJoinAndSelect('cv.campaign', 'campaign')
+				.leftJoinAndSelect('campaign.workspace', 'workspace')
+				.where('EXTRACT(YEAR FROM cv.created_at) = :pastYear', {
+					pastYear: pastYear.getFullYear(),
+				})
+				.andWhere('workspace.id = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			const currentYearCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.leftJoinAndSelect('cv.campaign', 'campaign')
+				.leftJoinAndSelect('campaign.workspace', 'workspace')
+				.where('EXTRACT(YEAR FROM cv.created_at) = :currentYear', {
+					currentYear: new Date().getFullYear(),
+				})
+				.andWhere('workspace.id = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			const totalCvCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.leftJoinAndSelect('cv.campaign', 'campaign')
+				.leftJoinAndSelect('campaign.workspace', 'workspace')
+				.where('workspace.id = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			return { oldYearCount, currentYearCount, totalCvCount };
+		} else {
+			const pastYear = new Date();
+			pastYear.setFullYear(pastYear.getFullYear() - 1);
+			const oldYearCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.where('EXTRACT(YEAR FROM cv.created_at) = :pastYear', {
+					pastYear: pastYear.getFullYear(),
+				})
+				.getCount();
+
+			const currentYearCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.where('EXTRACT(YEAR FROM cv.created_at) = :currentYear', {
+					currentYear: new Date().getFullYear(),
+				})
+				.getCount();
+
+			const totalCvCount = await this.cvRepos
+				.createQueryBuilder('cv')
+
+				.getCount();
+			return { oldYearCount, currentYearCount, totalCvCount };
+		}
+	}
 }

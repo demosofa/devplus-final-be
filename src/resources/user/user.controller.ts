@@ -41,6 +41,12 @@ export class UserController {
 		return this.userService.findAll(user, searchUserDto);
 	}
 
+	@Get('get-user-count')
+	@Auth(ROLE.ADMIN, ROLE.SUPER_ADMIN)
+	totalUser(@ReqUser() user: User) {
+		return this.userService.totalUser(user);
+	}
+
 	@Get(':id')
 	@UseGuards(AuthGuard)
 	findById(@Param('id') id: number) {

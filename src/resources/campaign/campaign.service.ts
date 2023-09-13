@@ -184,4 +184,62 @@ export class CampaignService {
 
 		return cvCountByTimePeriod.getRawMany();
 	}
+
+	async totalCampaign(user: User) {
+		const pastYear = new Date();
+		pastYear.setFullYear(pastYear.getFullYear() - 1);
+		if (user.role.name === ROLE.ADMIN) {
+			const oldYearCount = await this.campaignRepos
+				.createQueryBuilder('campaign')
+				.where('EXTRACT(YEAR FROM campaign.created_at) = :pastYear', {
+					pastYear: pastYear.getFullYear(),
+				})
+				.andWhere('campaign.workspace = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			const currentYearCount = await this.campaignRepos
+				.createQueryBuilder('campaign')
+				.where('EXTRACT(YEAR FROM campaign.created_at) = :currentYear', {
+					currentYear: new Date().getFullYear(),
+				})
+				.andWhere('campaign.workspace = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			const totalCampaignCount = await this.campaignRepos
+				.createQueryBuilder('campaign')
+				.andWhere('campaign.workspace = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			return { oldYearCount, currentYearCount, totalCampaignCount };
+		} else {
+			const oldYearCount = await this.campaignRepos
+				.createQueryBuilder('campaign')
+				.where('EXTRACT(YEAR FROM campaign.created_at) = :pastYear', {
+					pastYear: pastYear.getFullYear(),
+				})
+
+				.getCount();
+
+			const currentYearCount = await this.campaignRepos
+				.createQueryBuilder('campaign')
+				.where('EXTRACT(YEAR FROM campaign.created_at) = :currentYear', {
+					currentYear: new Date().getFullYear(),
+				})
+
+				.getCount();
+
+			const totalCampaignCount = await this.campaignRepos
+				.createQueryBuilder('campaign')
+
+				.getCount();
+
+			return { oldYearCount, currentYearCount, totalCampaignCount };
+		}
+	}
 }
