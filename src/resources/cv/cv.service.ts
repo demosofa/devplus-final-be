@@ -67,9 +67,6 @@ export class CvService {
 			findCv.orWhere('(LOWER(cv.status) ILIKE  LOWER(:search))', {
 				search: `%${searchCvDto.search}%`,
 			});
-			findCv.orWhere('(LOWER(cv.name) ILIKE  LOWER(:search))', {
-				search: `%${searchCvDto.search}%`,
-			});
 		}
 
 		return pagination(findCv, searchCvDto);
