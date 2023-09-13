@@ -53,6 +53,15 @@ export class UserService implements IUserService {
 			.createQueryBuilder('user')
 			.orderBy('user.id', searchUserDto.order);
 
+		if (searchUserDto.search) {
+			findUser.andWhere('(LOWER(user.name) ILIKE  LOWER(:search))', {
+				search: `%${searchUserDto.search}%`,
+			});
+			findUser.andWhere('user.name ILIKE  :userName', {
+				userName: `%${searchUserDto.search}%`,
+			});
+		}
+
 		if (user.role.name == ROLE.SUPER_ADMIN) {
 			findUser.andWhere('user.roleId != :superAdminRoleId', {
 				superAdminRoleId: user.role.id,
@@ -67,15 +76,6 @@ export class UserService implements IUserService {
 				.andWhere('user.workspaceId = :workspaceId', {
 					workspaceId: user.workspace.id,
 				});
-		}
-
-		if (searchUserDto.search) {
-			findUser.andWhere('(LOWER(user.name) ILIKE  LOWER(:search))', {
-				search: `%${searchUserDto.search}%`,
-			});
-			findUser.andWhere('user.name ILIKE  :userName', {
-				userName: `%${searchUserDto.search}%`,
-			});
 		}
 
 		return pagination(findUser, searchUserDto);
