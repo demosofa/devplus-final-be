@@ -5,7 +5,8 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import { unlinkSync } from 'fs';
+import { isURL } from 'class-validator';
+import { promises as fs } from 'fs';
 
 import { CreateCvDto } from './dto/create-cv.dto';
 import { SearchCvDto } from './dto/search-cv.dto';
@@ -37,8 +38,8 @@ export class CvService {
 				campaign,
 			});
 		} catch (error) {
-			if (createCvDto.file) {
-				unlinkSync(createCvDto.file);
+			if (!isURL(createCvDto.file)) {
+				await fs.unlink(createCvDto.file);
 			}
 			throw new BadRequestException(error.message);
 		}
