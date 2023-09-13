@@ -51,12 +51,6 @@ export class CvService {
 			.leftJoinAndSelect('campaign.workspace', 'workspace')
 			.orderBy('cv.id', searchCvDto.order);
 
-		if (user.role.name === ROLE.ADMIN || user.role.name === ROLE.HR) {
-			findCv.andWhere('workspace.id = :workspaceId', {
-				workspaceId: user.workspace.id,
-			});
-		}
-
 		if (searchCvDto.search) {
 			findCv.andWhere('(LOWER(campaign.name) ILIKE  LOWER(:search))', {
 				search: `%${searchCvDto.search}%`,
@@ -66,6 +60,12 @@ export class CvService {
 			});
 			findCv.orWhere('(LOWER(cv.status) ILIKE  LOWER(:search))', {
 				search: `%${searchCvDto.search}%`,
+			});
+		}
+
+		if (user.role.name === ROLE.ADMIN || user.role.name === ROLE.HR) {
+			findCv.andWhere('workspace.id = :workspaceId', {
+				workspaceId: user.workspace.id,
 			});
 		}
 
