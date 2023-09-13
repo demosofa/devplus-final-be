@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob, CronTime } from 'cron';
 
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
@@ -48,7 +49,7 @@ export class CampaignService {
 			});
 			const savedCampaign = await this.campaignRepos.save(campaign);
 
-			this.setExpire(savedCampaign.id, savedCampaign.expired_time);
+			this.addCronJob(savedCampaign.id, savedCampaign.expired_time);
 
 			return savedCampaign;
 		} catch (error) {
@@ -103,7 +104,7 @@ export class CampaignService {
 				...updateCampaignDto,
 			});
 
-			this.setExpire(id, updateCampaignDto.expired_time);
+			this.addCronJob(id, updateCampaignDto.expired_time);
 
 			return updatedCampaign;
 		} catch (error) {
@@ -111,22 +112,31 @@ export class CampaignService {
 		}
 	}
 
-	private setExpire(id: number, at: string | Date) {
-		this.removeExpire(id);
+	addCronJob(id: number, at: string | Date) {
+		const date = new Date(at);
 
-		const milliseconds = new Date(at).getTime() - new Date().getTime();
+		let job = this.schedulerRegistry.getCronJobs().get(id.toString());
 
-		const timeout = setTimeout(async () => {
-			await this.campaignRepos.update(id, { status: CAMPAIGN_STATUS.INACTIVE });
-			this.removeExpire(id);
-		}, milliseconds);
+		if (job) {
+			job.setTime(new CronTime(date));
+		} else {
+			job = new CronJob(date, async () => {
+				if (new Date().getFullYear() == date.getFullYear()) {
+					await this.campaignRepos.update(id, {
+						status: CAMPAIGN_STATUS.INACTIVE,
+					});
+					this.deleteCron(id);
+				}
+			});
 
-		this.schedulerRegistry.addTimeout(id.toString(), timeout);
+			this.schedulerRegistry.addCronJob(id.toString(), job);
+			job.start();
+		}
 	}
 
-	private removeExpire(id: number) {
-		if (this.schedulerRegistry.getTimeouts().includes(id.toString())) {
-			this.schedulerRegistry.deleteTimeout(id.toString());
+	deleteCron(id: number) {
+		if (this.schedulerRegistry.getCronJobs().get(id.toString())) {
+			this.schedulerRegistry.deleteCronJob(id.toString());
 		}
 	}
 
@@ -145,7 +155,7 @@ export class CampaignService {
 		try {
 			await this.campaignRepos.remove(campaign);
 
-			this.removeExpire(id);
+			this.deleteCron(id);
 		} catch (error) {
 			throw new InternalServerErrorException(error.message);
 		}
