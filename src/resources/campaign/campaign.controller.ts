@@ -43,6 +43,12 @@ export class CampaignController {
 		return this.campaignService.getCvCountByTimePeriod(user, filterTime);
 	}
 
+	@Get('get-campaign-count')
+	@Auth(ROLE.ADMIN, ROLE.SUPER_ADMIN)
+	totalCampaign(@ReqUser() user: User) {
+		return this.campaignService.totalCampaign(user);
+	}
+
 	@Get(':id')
 	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN, ROLE.HR)
 	findOne(@Param('id') id: string) {

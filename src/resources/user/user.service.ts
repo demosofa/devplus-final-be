@@ -138,4 +138,67 @@ export class UserService implements IUserService {
 		const { affected } = await this.userRepos.delete(id);
 		if (!affected) throw new NotFoundException('Can not find the user');
 	}
+
+	async totalUser(user: User) {
+		if (user.role.name === ROLE.ADMIN) {
+			const pastYear = new Date();
+			pastYear.setFullYear(pastYear.getFullYear() - 1);
+			const oldYearCount = await this.userRepos
+				.createQueryBuilder('user')
+				.leftJoinAndSelect('user.workspace', 'workspace')
+				.where('EXTRACT(YEAR FROM user.created_at) = :pastYear', {
+					pastYear: pastYear.getFullYear(),
+				})
+				.andWhere('user.roleId != :adminRoleId', {
+					adminRoleId: user.role.id,
+				})
+				.andWhere('user.workspaceId = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			const currentYearCount = await this.userRepos
+				.createQueryBuilder('user')
+				.leftJoinAndSelect('user.workspace', 'workspace')
+				.where('EXTRACT(YEAR FROM user.created_at) = :currentYear', {
+					currentYear: new Date().getFullYear(),
+				})
+				.andWhere('workspace.id = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			const totalUserCount = await this.userRepos
+				.createQueryBuilder('user')
+				.leftJoinAndSelect('user.workspace', 'workspace')
+				.where('workspace.id = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			return { oldYearCount, currentYearCount, totalUserCount };
+		} else {
+			const pastYear = new Date();
+			pastYear.setFullYear(pastYear.getFullYear() - 1);
+			const oldYearCount = await this.userRepos
+				.createQueryBuilder('user')
+				.where('EXTRACT(YEAR FROM user.created_at) = :pastYear', {
+					pastYear: pastYear.getFullYear(),
+				})
+				.getCount();
+
+			const currentYearCount = await this.userRepos
+				.createQueryBuilder('user')
+				.where('EXTRACT(YEAR FROM user.created_at) = :currentYear', {
+					currentYear: new Date().getFullYear(),
+				})
+				.getCount();
+
+			const totalUserCount = await this.userRepos
+				.createQueryBuilder('user')
+				.getCount();
+
+			return { oldYearCount, currentYearCount, totalUserCount };
+		}
+	}
 }

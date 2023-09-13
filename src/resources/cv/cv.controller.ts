@@ -39,6 +39,12 @@ export class CvController {
 		return this.cvService.findAll(user, searchCvDto);
 	}
 
+	@Get('get-cv-count')
+	@Auth(ROLE.ADMIN, ROLE.SUPER_ADMIN)
+	totalCampaign(@ReqUser() user: User) {
+		return this.cvService.totalCv(user);
+	}
+
 	@Get(':id')
 	@Auth(ROLE.SUPER_ADMIN, ROLE.ADMIN)
 	findOne(@Param('id') id: string) {

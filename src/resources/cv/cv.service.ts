@@ -64,6 +64,12 @@ export class CvService {
 			findCv.andWhere('campaign.name ILIKE  :campaignName', {
 				campaignName: `%${searchCvDto.search}%`,
 			});
+			findCv.orWhere('(LOWER(cv.status) ILIKE  LOWER(:search))', {
+				search: `%${searchCvDto.search}%`,
+			});
+			findCv.orWhere('(LOWER(cv.name) ILIKE  LOWER(:search))', {
+				search: `%${searchCvDto.search}%`,
+			});
 		}
 
 		return pagination(findCv, searchCvDto);
@@ -115,5 +121,68 @@ export class CvService {
 
 	remove(id: number) {
 		return `This action removes a #${id} cv`;
+	}
+
+	async totalCv(user: User) {
+		if (user.role.name === ROLE.ADMIN) {
+			const pastYear = new Date();
+			pastYear.setFullYear(pastYear.getFullYear() - 1);
+			const oldYearCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.leftJoinAndSelect('cv.campaign', 'campaign')
+				.leftJoinAndSelect('campaign.workspace', 'workspace')
+				.where('EXTRACT(YEAR FROM cv.created_at) = :pastYear', {
+					pastYear: pastYear.getFullYear(),
+				})
+				.andWhere('workspace.id = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			const currentYearCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.leftJoinAndSelect('cv.campaign', 'campaign')
+				.leftJoinAndSelect('campaign.workspace', 'workspace')
+				.where('EXTRACT(YEAR FROM cv.created_at) = :currentYear', {
+					currentYear: new Date().getFullYear(),
+				})
+				.andWhere('workspace.id = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			const totalCvCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.leftJoinAndSelect('cv.campaign', 'campaign')
+				.leftJoinAndSelect('campaign.workspace', 'workspace')
+				.where('workspace.id = :workspaceId', {
+					workspaceId: user.workspace.id,
+				})
+				.getCount();
+
+			return { oldYearCount, currentYearCount, totalCvCount };
+		} else {
+			const pastYear = new Date();
+			pastYear.setFullYear(pastYear.getFullYear() - 1);
+			const oldYearCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.where('EXTRACT(YEAR FROM cv.created_at) = :pastYear', {
+					pastYear: pastYear.getFullYear(),
+				})
+				.getCount();
+
+			const currentYearCount = await this.cvRepos
+				.createQueryBuilder('cv')
+				.where('EXTRACT(YEAR FROM cv.created_at) = :currentYear', {
+					currentYear: new Date().getFullYear(),
+				})
+				.getCount();
+
+			const totalCvCount = await this.cvRepos
+				.createQueryBuilder('cv')
+
+				.getCount();
+			return { oldYearCount, currentYearCount, totalCvCount };
+		}
 	}
 }
