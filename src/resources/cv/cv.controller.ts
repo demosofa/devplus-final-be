@@ -7,12 +7,10 @@ import {
 	Patch,
 	Post,
 	Query,
-	Req,
 	UploadedFile,
 	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Request } from 'express';
 
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
@@ -29,12 +27,9 @@ export class CvController {
 	@UseInterceptors(FileInterceptor('file'))
 	create(
 		@UploadedFile() file: Express.Multer.File,
-		@Body() createCvDto: CreateCvDto,
-		@Req() req: Request
+		@Body() createCvDto: CreateCvDto
 	) {
-		if (file) {
-			createCvDto.file = `${req.protocol}://${req.get('host')}/${file.path}`;
-		}
+		if (file) createCvDto.file = file.path;
 		return this.cvService.create(createCvDto);
 	}
 
